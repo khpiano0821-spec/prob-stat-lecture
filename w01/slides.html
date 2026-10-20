@@ -393,7 +393,7 @@ function hist(x0,y0,w,h,shade){
  g.font=&#x27;700 28px &#x27;+F;g.fillStyle=&#x27;#9A3412&#x27;;g.textAlign=&#x27;right&#x27;;g.textBaseline=&#x27;bottom&#x27;;g.fillText(&#x27;f(x) = 1/10&#x27;,x0+w,ly-8);
  g.font=&#x27;26px &#x27;+F;g.fillStyle=&#x27;#46506A&#x27;;g.textAlign=&#x27;center&#x27;;g.textBaseline=&#x27;top&#x27;;
  for(var t=0;t&lt;=10;t+=2)g.fillText(String(t),x0+t*bw,y0+h+10);
- g.textAlign=&#x27;left&#x27;;g.textBaseline=&#x27;top&#x27;;g.font=&#x27;700 30px &#x27;+F;g.fillStyle=&#x27;#172033&#x27;;g.fillText(&#x27;돌린 횟수 &#x27;+n,x0+10,y0-6);
+ g.textAlign=&#x27;left&#x27;;g.textBaseline=&#x27;top&#x27;;g.font=&#x27;700 30px &#x27;+F;g.fillStyle=&#x27;#172033&#x27;;g.fillText(&#x27;돌린 횟수 &#x27;+n,x0+10,y0-56);
  var m=0;for(var j=0;j&lt;n;j++)if(stops[j]&gt;=3&amp;&amp;stops[j]&lt;=7)m++;
  g.font=&#x27;28px &#x27;+F;g.fillStyle=&#x27;#172033&#x27;;g.textAlign=&#x27;left&#x27;;g.textBaseline=&#x27;top&#x27;;
  g.fillText(&#x27;P(3 ≤ X ≤ 7)  실제 &#x27;+(n?(m/n).toFixed(3):&#x27;-&#x27;)+&#x27;  ·  이론 0.4&#x27;,x0+10,y0+h+52);
