@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>확률 플레이그라운드</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.wrap { max-width: 1120px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+.tabs button { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 8px 16px; font: inherit; font-size: 15px; cursor: pointer; }
+.tabs button.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+.stagebox { background: #0E1117; border-radius: 14px; overflow: hidden; border: 1px solid #222A3A; }
+canvas { display: block; width: 100%; aspect-ratio: 16 / 9; min-height: 300px; }
+.ctrl { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 24px; margin-top: 16px; }
+.ctrl label { display: flex; flex-direction: column; gap: 4px; font-size: 15px; }
+.ctrl label span b { font-variant-numeric: tabular-nums; color: var(--blue); }
+.ctrl input[type=range] { width: 100%; accent-color: var(--blue); }
+.ctrl select { font: inherit; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+.check { flex-direction: row !important; align-items: center; gap: 8px !important; }
+.explain { margin-top: 16px; }
+.explain p { margin: 4px 0; }
+</style>
+</head><body><div class="wrap">
+<a class="back" href="../index.html">← 강의 목록</a>
+<p class="eyebrow">확률과 통계 · 애니메이션 플레이그라운드</p>
+<h1>값을 바꾸며 분포 관찰하기</h1>
+<p class="lead">Manim 스타일 시뮬레이션 · 슬라이더를 움직이면 그래프가 부드럽게 변함</p>
+<div class="tabs" id="tabs"></div>
+<div class="stagebox"><canvas id="cv"></canvas></div>
+<div class="ctrl" id="ctrl"></div>
+<div class="card explain" id="explain"></div>
+<footer>교과서: 미래엔 확률과 통계 Ⅲ-1 확률분포 · 1주차(넓이 = 확률)부터 정규분포 단원까지 사용</footer>
+</div>
+<script>
+// ---------- 공통 ----------
+var cv = document.getElementById('cv'), g = cv.getContext('2d'), W = 0, H = 0, S = 1;
+var C = { bg:'#0E1117', ink:'#ECEFF4', dim:'#8B95A7', grid:'#222A3A', blue:'#58C4DD', yellow:'#F9D65C', red:'#FC6255', green:'#83C167', gold:'#F0AC5F', teal:'#5CD0B3' };
+var FONT = '"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif';
+function resize(){ var r = window.devicePixelRatio || 1; W = cv.clientWidth; H = cv.clientHeight; cv.width = W * r; cv.height = H * r; g.setTransform(r, 0, 0, r, 0, 0); S = Math.max(0.7, W / 1100); }
+window.addEventListener('resize', resize);
+function lerp(a, b, t){ return a + (b - a) * t; }
+function font(sz, w){ g.font = (w || 400) + ' ' + Math.round(sz * S) + 'px ' + FONT; }
+function text(s, x, y, col, sz, w, al, bl){ font(sz || 16, w); g.fillStyle = col || C.ink; g.textAlign = al || 'left'; g.textBaseline = bl || 'alphabetic'; g.fillText(s, x, y); }
+function erf(x){ var s = x < 0 ? -1 : 1; x = Math.abs(x); var t = 1 / (1 + 0.3275911 * x);
+  var y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return s * y; }
+function Phi(z){ return 0.5 * (1 + erf(z / Math.SQRT2)); }
+function npdf(x, m, s){ return Math.exp(-(x - m) * (x - m) / (2 * s * s)) / (s * Math.sqrt(2 * Math.PI)); }
+function binom(n, p){ var a = new Array(n + 1), q = 1 - p; if (p <= 0){ a.fill(0); a[0] = 1; return a; } if (p >= 1){ a.fill(0); a[n] = 1; return a; }
+  a[0] = Math.pow(q, n); for (var k = 0; k < n; k++) a[k + 1] = a[k] * (n - k) / (k + 1) * p / q; return a; }
+// 좌표축: 화면 영역 안에 [x0,x1]×[0,y1]
+function Axes(x0, x1, y1, pad){ pad = pad || {l:70, r:40, t:56, b:56}; var L = pad.l * S, R = W - pad.r * S, T = pad.t * S, B = H - pad.b * S;
+  return { L:L, R:R, T:T, B:B, X:function(x){ return L + (R - L) * (x - x0) / (x1 - x0); }, Y:function(y){ return B - (B - T) * y / y1; },
+    draw:function(xt, yt, fmt){ g.strokeStyle = C.dim; g.lineWidth = 2; g.beginPath(); g.moveTo(L, T - 10); g.lineTo(L, B); g.lineTo(R + 10, B); g.stroke();
+      var self = this; (xt || []).forEach(function(v){ var X = self.X(v); g.beginPath(); g.moveTo(X, B); g.lineTo(X, B + 6); g.stroke(); text(String(v), X, B + 24 * S, C.dim, 14, 400, 'center'); });
+      (yt || []).forEach(function(v){ var Y = self.Y(v); g.strokeStyle = C.grid; g.beginPath(); g.moveTo(L, Y); g.lineTo(R, Y); g.stroke(); text(fmt ? fmt(v) : String(v), L - 10, Y + 5, C.dim, 14, 400, 'right'); }); } }; }
+function niceTicks(lo, hi, n){ var span = hi - lo, step = Math.pow(10, Math.floor(Math.log10(span / n))), m = span / n / step; step *= m > 5 ? 10 : m > 2 ? 5 : m > 1 ? 2 : 1;
+  var out = []; for (var v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(Math.round(v * 1e6) / 1e6); return out; }
+function slider(id, label, min, max, step, val, fmt){ return {id:id, label:label, min:min, max:max, step:step, val:val, fmt:fmt || function(v){ return v; }}; }
+
+// ---------- 장면 ----------
+var scenes = {};
+
+scenes.binom = { name:'이항분포 B(n, p)', controls:[slider('n','시행 횟수 n',1,100,1,10), slider('p','성공 확률 p',0.01,0.99,0.01,0.5,function(v){ return v.toFixed(2); }), {id:'norm', label:'정규분포 근사 겹치기', check:true, val:false}],
+  explain:['n이 커질수록 막대 모양이 좌우 대칭인 종 모양에 가까워짐','평균 E(X) = np, 표준편차 σ(X) = √(npq)','n이 충분히 크면 B(n, p) ≈ N(np, npq) · 교과서 103쪽'],
+  init:function(){ this.disp = new Array(101).fill(0); this.xmax = 10; this.ymax = 0.4; },
+  draw:function(v){ var n = v.n, p = v.p, pmf = binom(n, p), d = this.disp, mx = 0;
+    for (var k = 0; k <= 100; k++){ d[k] = lerp(d[k], k <= n ? pmf[k] : 0, 0.18); if (k <= n) mx = Math.max(mx, pmf[k]); }
+    this.xmax = lerp(this.xmax, Math.max(n, 5), 0.15); this.ymax = lerp(this.ymax, Math.max(mx * 1.25, 0.05), 0.15);
+    var A = Axes(-0.6, this.xmax + 0.6, this.ymax); A.draw(niceTicks(0, this.xmax, 10).filter(function(t){ return t % 1 === 0; }), niceTicks(0, this.ymax, 5), function(t){ return t.toFixed(2); });
+    var bw = Math.max(1, (A.X(1) - A.X(0)) * 0.8);
+    for (k = 0; k <= Math.ceil(this.xmax); k++){ if (d[k] < 1e-5) continue; g.fillStyle = C.blue; g.fillRect(A.X(k) - bw / 2, A.Y(d[k]), bw, A.B - A.Y(d[k])); }
+    var m = n * p, sd = Math.sqrt(n * p * (1 - p));
+    g.setLineDash([8, 6]); g.strokeStyle = C.yellow; g.lineWidth = 2.5; g.beginPath(); g.moveTo(A.X(m), A.T); g.lineTo(A.X(m), A.B); g.stroke(); g.setLineDash([]);
+    if (v.norm && sd > 0){ g.strokeStyle = C.red; g.lineWidth = 3.5; g.beginPath(); for (var i = 0; i <= 300; i++){ var x = -0.6 + (this.xmax + 1.2) * i / 300, y = npdf(x, m, sd); i ? g.lineTo(A.X(x), A.Y(Math.min(y, this.ymax * 1.05))) : g.moveTo(A.X(x), A.Y(y)); } g.stroke(); }
+    text('B(' + n + ', ' + p.toFixed(2) + ')', A.R, A.T + 6 * S, C.ink, 30, 700, 'right', 'top');
+    text('E(X) = np = ' + m.toFixed(2), A.R, A.T + 48 * S, C.yellow, 18, 500, 'right', 'top');
+    text('σ(X) = √(npq) = ' + sd.toFixed(2), A.R, A.T + 76 * S, C.ink, 18, 500, 'right', 'top');
+    if (v.norm) text('빨간 곡선: N(np, npq)', A.R, A.T + 104 * S, C.red, 18, 500, 'right', 'top'); } };
+
+scenes.normal = { name:'정규분포와 넓이', controls:[slider('m','평균 m',-3,3,0.1,0,function(v){ return v.toFixed(1); }), slider('s','표준편차 σ',0.3,3,0.05,1,function(v){ return v.toFixed(2); }),
+    slider('a','구간 시작 a',-6,6,0.1,-1,function(v){ return v.toFixed(1); }), slider('b','구간 끝 b',-6,6,0.1,1,function(v){ return v.toFixed(1); }), {id:'std', label:'표준화 애니메이션 Z = (X − m)/σ', button:true}],
+  explain:['m이 바뀌면 곡선이 좌우로 이동, 모양은 그대로','σ가 클수록 가운데 높이 낮아지고 옆으로 퍼짐 · 전체 넓이는 항상 1','표준화 버튼: 평행이동 후 가로 1/σ배 → N(0, 1), 색칠한 넓이 유지 · 교과서 101쪽'],
+  init:function(){ this.m = 0; this.s = 1; this.a = -1; this.b = 1; this.anim = null; },
+  press:function(v){ this.anim = { t:0, m:v.m, s:v.s, a:v.a, b:v.b }; },
+  draw:function(v){ var tm = v.m, ts = v.s, ta = Math.min(v.a, v.b), tb = Math.max(v.a, v.b), label = null;
+    if (this.anim){ var A0 = this.anim; A0.t += 1 / 150; var t = A0.t, e1 = Math.min(1, t / 0.4), e2 = Math.max(0, Math.min(1, (t - 0.45) / 0.4));
+      e1 = e1 * e1 * (3 - 2 * e1); e2 = e2 * e2 * (3 - 2 * e2);
+      var lo = Math.min(A0.a, A0.b), hi = Math.max(A0.a, A0.b);
+      tm = A0.m * (1 - e1); ts = lerp(A0.s, 1, e2); ta = lo - A0.m * e1; tb = hi - A0.m * e1; ta = ta / lerp(1, A0.s, e2); tb = tb / lerp(1, A0.s, e2);
+      label = t < 0.45 ? '① X − m : 평행이동' : t < 0.9 ? '② ÷ σ : 가로 1/σ배, 세로 σ배' : 'Z ~ N(0, 1) 완성 · 넓이 그대로 · 슬라이더를 움직이면 원래대로';
+      this.m = tm; this.s = ts; this.a = ta; this.b = tb; if (A0.t > 1) A0.t = 1; }
+    else { this.m = lerp(this.m, tm, 0.2); this.s = lerp(this.s, ts, 0.2); this.a = lerp(this.a, ta, 0.25); this.b = lerp(this.b, tb, 0.25); }
+    var m = this.m, s = this.s, a = this.a, b = this.b, A = Axes(-6, 6, 1.4);
+    A.draw([-6, -4, -2, 0, 2, 4, 6], [0, 0.4, 0.8, 1.2], function(t){ return t.toFixed(1); });
+    g.setLineDash([6, 6]); g.strokeStyle = C.dim; g.lineWidth = 2; g.beginPath(); for (var i = 0; i <= 300; i++){ var x = -6 + 12 * i / 300; i ? g.lineTo(A.X(x), A.Y(npdf(x, 0, 1))) : g.moveTo(A.X(x), A.Y(npdf(x, 0, 1))); } g.stroke(); g.setLineDash([]);
+    g.beginPath(); g.moveTo(A.X(a), A.B); for (i = 0; i <= 200; i++){ x = a + (b - a) * i / 200; g.lineTo(A.X(x), A.Y(Math.min(npdf(x, m, s), 1.4))); } g.lineTo(A.X(b), A.B); g.closePath(); g.fillStyle = 'rgba(240,172,95,0.55)'; g.fill();
+    g.strokeStyle = C.blue; g.lineWidth = 4; g.beginPath(); for (i = 0; i <= 400; i++){ x = -6 + 12 * i / 400; var y = Math.min(npdf(x, m, s), 1.4); i ? g.lineTo(A.X(x), A.Y(y)) : g.moveTo(A.X(x), A.Y(y)); } g.stroke();
+    g.setLineDash([8, 6]); g.strokeStyle = C.yellow; g.lineWidth = 2; g.beginPath(); g.moveTo(A.X(m), A.T); g.lineTo(A.X(m), A.B); g.stroke(); g.setLineDash([]);
+    var P = Phi((b - m) / s) - Phi((a - m) / s);
+    text('N(' + m.toFixed(2) + ', ' + s.toFixed(2) + '²)', A.R, A.T + 6 * S, C.ink, 28, 700, 'right', 'top');
+    text('P(' + a.toFixed(2) + ' ≤ X ≤ ' + b.toFixed(2) + ') = ' + P.toFixed(4), A.R, A.T + 46 * S, C.gold, 20, 700, 'right', 'top');
+    text('점선: N(0, 1)', A.R, A.T + 76 * S, C.dim, 16, 400, 'right', 'top');
+    if (label) text(label, A.L + 10 * S, A.T + 6 * S, C.yellow, 22, 700, 'left', 'top'); } };
+
+scenes.galton = { name:'골턴 보드', controls:[slider('rows','못의 줄 수',4,16,1,10), slider('p','오른쪽으로 갈 확률',0.1,0.9,0.05,0.5,function(v){ return v.toFixed(2); }),
+    {id:'drop1', label:'공 1개', button:true}, {id:'drop100', label:'공 200개', button:true}, {id:'reset', label:'초기화', button:true}],
+  explain:['공 1개 = 동전을 줄 수만큼 던지기 · 오른쪽으로 간 횟수 X ~ B(줄 수, p)','공이 많이 쌓일수록 노란 점(이론 확률)에 가까워짐','줄 수를 늘리면 종 모양(정규분포)에 가까워짐 · 교과서 97·103쪽'],
+  init:function(){ this.balls = []; this.counts = null; this.rows = 0; this.queue = 0; this.p = 0.5; this.tick = 0; },
+  press:function(v, id){ if (id === 'reset' || this.rows !== v.rows || this.p !== v.p){ this.balls = []; this.counts = null; this.queue = 0; } if (id === 'drop1') this.queue += 1; if (id === 'drop100') this.queue += 200; },
+  draw:function(v){ var R = v.rows; if (!this.counts || this.rows !== R || this.p !== v.p){ this.rows = R; this.p = v.p; this.counts = new Array(R + 1).fill(0); this.balls = []; }
+    this.tick++; if (this.queue > 0 && this.tick % 2 === 0){ var path = [], k = 0; for (var i = 0; i < R; i++){ var r = Math.random() < v.p ? 1 : 0; k += r; path.push(r); } this.balls.push({ path:path, k:k, t:0, slow:this.balls.length < 2 && this.queue === 1 }); this.queue--; }
+    var top = 50 * S, rowH = (H * 0.5) / R, cx = W / 2, dx = Math.min(rowH * 1.1, (W * 0.8) / (R + 1)), floor = H - 40 * S, binTop = top + rowH * R + 30 * S;
+    g.fillStyle = C.ink; for (i = 0; i < R; i++) for (var j = 0; j <= i; j++){ g.beginPath(); g.arc(cx + (j - i / 2) * dx, top + i * rowH, 3.5 * S, 0, 7); g.fill(); }
+    g.strokeStyle = C.grid; g.lineWidth = 1.5; for (j = 0; j <= R + 1; j++){ var bx = cx + (j - (R + 1) / 2) * dx; g.beginPath(); g.moveTo(bx, binTop); g.lineTo(bx, floor); g.stroke(); }
+    g.strokeStyle = C.dim; g.lineWidth = 2; g.beginPath(); g.moveTo(cx - (R + 1) / 2 * dx, floor); g.lineTo(cx + (R + 1) / 2 * dx, floor); g.stroke();
+    var total = 0, mx = 1; this.counts.forEach(function(c){ total += c; mx = Math.max(mx, c); });
+    var pm = binom(R, v.p), pmax = Math.max.apply(null, pm), hmax = floor - binTop - 10 * S, scale = hmax / Math.max(mx, pmax * Math.max(total, 1));
+    for (j = 0; j <= R; j++){ var bxx = cx + (j - R / 2) * dx, h = this.counts[j] * scale; g.fillStyle = C.blue; g.fillRect(bxx - dx * 0.4, floor - h, dx * 0.8, h); }
+    if (total > 0){ g.fillStyle = C.yellow; for (j = 0; j <= R; j++){ g.beginPath(); g.arc(cx + (j - R / 2) * dx, floor - pm[j] * total * scale, 5 * S, 0, 7); g.fill(); } }
+    var keep = []; for (i = 0; i < this.balls.length; i++){ var b = this.balls[i]; b.t += b.slow ? 0.05 : 0.22; var step = Math.floor(b.t), fr = b.t - step;
+      if (step >= R){ this.counts[b.k]++; continue; }
+      var pos = 0; for (var q = 0; q < step; q++) pos += b.path[q] - 0.5; var nx = pos + (b.path[step] - 0.5) * fr;
+      g.fillStyle = C.gold; g.beginPath(); g.arc(cx + nx * dx, top + (step + fr) * rowH - Math.sin(Math.PI * fr) * rowH * 0.3, (b.slow ? 9 : 6) * S, 0, 7); g.fill(); keep.push(b); }
+    this.balls = keep;
+    text('공 ' + total + '개', W - 30 * S, 40 * S, C.ink, 26, 700, 'right');
+    text('X ~ B(' + R + ', ' + v.p.toFixed(2) + ')', W - 30 * S, 72 * S, C.yellow, 18, 500, 'right');
+    text('노란 점: 이론 확률 × 공 개수', 30 * S, 40 * S, C.dim, 16); } };
+
+scenes.lln = { name:'큰수의 법칙', controls:[slider('p','사건의 확률 p',0.05,0.95,0.01,1/6,function(v){ return v.toFixed(3); }),
+    {id:'a10', label:'+10번', button:true}, {id:'a100', label:'+100번', button:true}, {id:'a2000', label:'+2000번', button:true}, {id:'reset', label:'초기화', button:true}],
+  explain:['3명이 각자 같은 시행을 반복 · 선 = 지금까지의 상대도수 X/n','n이 작을 때는 들쭉날쭉, n이 커질수록 모두 p 근처로 모임','주황 띠: |X/n − p| < 0.05 · 교과서 96쪽'],
+  init:function(){ this.runs = [[], [], []]; this.hits = [0, 0, 0]; this.pend = 0; this.p = null; },
+  press:function(v, id){ if (id === 'reset' || this.p !== v.p){ this.init(); this.p = v.p; } if (id === 'a10') this.pend += 10; if (id === 'a100') this.pend += 100; if (id === 'a2000') this.pend += 2000; },
+  draw:function(v){ if (this.p !== v.p){ this.init(); this.p = v.p; }
+    var add = Math.min(this.pend, Math.max(1, Math.ceil(this.pend / 20))); this.pend -= add;
+    for (var r = 0; r < 3; r++) for (var i = 0; i < add; i++){ if (Math.random() < v.p) this.hits[r]++; this.runs[r].push(this.hits[r] / (this.runs[r].length + 1)); }
+    var n = this.runs[0].length, nmax = Math.max(10, n), L = 70 * S, R = W - 40 * S, T = 50 * S, B = H - 56 * S;
+    function X(k){ return L + (R - L) * Math.log10(k) / Math.log10(nmax); } function Y(y){ return B - (B - T) * y; }
+    g.fillStyle = 'rgba(240,172,95,0.18)'; g.fillRect(L, Y(Math.min(1, v.p + 0.05)), R - L, Y(Math.max(0, v.p - 0.05)) - Y(Math.min(1, v.p + 0.05)));
+    g.strokeStyle = C.dim; g.lineWidth = 2; g.beginPath(); g.moveTo(L, T - 10); g.lineTo(L, B); g.lineTo(R + 10, B); g.stroke();
+    [0, 0.25, 0.5, 0.75, 1].forEach(function(t){ text(t.toFixed(2), L - 10, Y(t) + 5, C.dim, 14, 400, 'right'); });
+    for (var e = 0; Math.pow(10, e) <= nmax; e++){ var xx = X(Math.pow(10, e)); g.strokeStyle = C.dim; g.beginPath(); g.moveTo(xx, B); g.lineTo(xx, B + 6); g.stroke(); text(String(Math.pow(10, e)), xx, B + 24 * S, C.dim, 14, 400, 'center'); }
+    g.setLineDash([8, 6]); g.strokeStyle = C.yellow; g.lineWidth = 2; g.beginPath(); g.moveTo(L, Y(v.p)); g.lineTo(R, Y(v.p)); g.stroke(); g.setLineDash([]);
+    var cols = [C.blue, C.green, C.red];
+    for (r = 0; r < 3; r++){ var run = this.runs[r]; if (!run.length) continue; g.strokeStyle = cols[r]; g.lineWidth = 2.5; g.beginPath();
+      var stepN = Math.max(1, Math.floor(run.length / 1500)); for (i = 0; i < run.length; i += stepN){ i ? g.lineTo(X(i + 1), Y(run[i])) : g.moveTo(X(1), Y(run[0])); } g.lineTo(X(run.length), Y(run[run.length - 1])); g.stroke(); }
+    text('n = ' + n.toLocaleString(), R, T + 4 * S, C.ink, 28, 700, 'right', 'top');
+    if (n) text('상대도수: ' + this.runs.map(function(ru){ return ru[ru.length - 1].toFixed(3); }).join(' · '), R, T + 42 * S, C.ink, 17, 500, 'right', 'top');
+    text('p = ' + v.p.toFixed(3), L + 10 * S, Y(v.p) - 10 * S, C.yellow, 16, 700); } };
+
+scenes.area = { name:'넓이 = 확률', controls:[{id:'f', label:'확률밀도함수', select:[['wait','계산 대기 시간 x(12 − x)/288'],['uni','회전 원판 균등분포 1/10'],['kx','f(x) = (2/9)x, 0 ≤ x ≤ 3']], val:'wait'},
+    slider('a','구간 시작 a (비율)',0,1,0.01,0,function(v){ return Math.round(v * 100) + '%'; }), slider('b','구간 끝 b (비율)',0,1,0.01,0.25,function(v){ return Math.round(v * 100) + '%'; }), slider('bins','막대 개수 (0 = 곡선만)',0,60,1,6)],
+  explain:['막대 개수를 늘리면 막대 끝이 곡선에 가까워짐 → 확률밀도함수 (플립북 비유)','색칠한 넓이 = P(a ≤ X ≤ b) = ∫ f(x) dx','전체 넓이 = 1 · 교과서 83~85쪽'],
+  funcs:{ wait:{ lo:0, hi:12, ymax:0.15, f:function(x){ return x * (12 - x) / 288; }, F:function(x){ return (6 * x * x - x * x * x / 3) / 288; }, name:'f(x) = x(12 − x)/288' },
+    uni:{ lo:0, hi:10, ymax:0.15, f:function(){ return 0.1; }, F:function(x){ return x / 10; }, name:'f(x) = 1/10' },
+    kx:{ lo:0, hi:3, ymax:0.75, f:function(x){ return 2 / 9 * x; }, F:function(x){ return x * x / 9; }, name:'f(x) = (2/9)x' } },
+  init:function(){ this.a = 0; this.b = 0; },
+  draw:function(v){ var fn = this.funcs[v.f], lo = fn.lo, hi = fn.hi, ta = lo + (hi - lo) * Math.min(v.a, v.b), tb = lo + (hi - lo) * Math.max(v.a, v.b);
+    this.a = lerp(this.a, ta, 0.2); this.b = lerp(this.b, tb, 0.2); var a = Math.max(lo, Math.min(hi, this.a)), b = Math.max(lo, Math.min(hi, this.b));
+    var A = Axes(lo, hi, fn.ymax, {l:70, r:300, t:50, b:56}); A.draw(niceTicks(lo, hi, 6), niceTicks(0, fn.ymax, 4), function(t){ return t.toFixed(2); });
+    if (v.bins > 0){ var w = (hi - lo) / v.bins; for (var k = 0; k < v.bins; k++){ var x0 = lo + k * w, h = (fn.F(x0 + w) - fn.F(x0)) / w;
+      g.fillStyle = 'rgba(88,196,221,0.35)'; g.fillRect(A.X(x0) + 1, A.Y(h), A.X(x0 + w) - A.X(x0) - 2, A.B - A.Y(h)); } }
+    g.beginPath(); g.moveTo(A.X(a), A.B); for (var i = 0; i <= 200; i++){ var x = a + (b - a) * i / 200; g.lineTo(A.X(x), A.Y(fn.f(x))); } g.lineTo(A.X(b), A.B); g.closePath(); g.fillStyle = 'rgba(240,172,95,0.6)'; g.fill();
+    g.strokeStyle = C.blue; g.lineWidth = 4; g.beginPath(); for (i = 0; i <= 300; i++){ x = lo + (hi - lo) * i / 300; i ? g.lineTo(A.X(x), A.Y(fn.f(x))) : g.moveTo(A.X(x), A.Y(fn.f(x))); } g.stroke();
+    var px = W - 280 * S, P = fn.F(b) - fn.F(a);
+    text(fn.name, px, 70 * S, C.blue, 18, 700);
+    text('구간', px, 120 * S, C.dim, 16); text(a.toFixed(2) + ' ≤ X ≤ ' + b.toFixed(2), px, 150 * S, C.gold, 22, 700);
+    text('넓이 = 확률', px, 200 * S, C.dim, 16); text(P.toFixed(4), px, 250 * S, C.gold, 44, 800);
+    if (v.bins > 0) text('막대 ' + v.bins + '개 · 막대 넓이 합 = 1', px, 300 * S, C.dim, 15); } };
+
+// ---------- 화면 구성 ----------
+var order = ['binom', 'normal', 'galton', 'lln', 'area'], curId = null, vals = {};
+var tabs = document.getElementById('tabs'), ctrl = document.getElementById('ctrl'), explain = document.getElementById('explain');
+order.forEach(function(id){ var b = document.createElement('button'); b.textContent = scenes[id].name; b.onclick = function(){ select(id); }; b.dataset.id = id; tabs.appendChild(b); });
+function select(id){ curId = id; var sc = scenes[id]; vals = {}; ctrl.innerHTML = '';
+  tabs.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.dataset.id === id); });
+  sc.controls.forEach(function(c){
+    if (c.button){ var bt = document.createElement('button'); bt.className = 'btn'; bt.textContent = c.label; bt.onclick = function(){ sc.press && sc.press(vals, c.id); }; var wrap = document.createElement('label'); wrap.appendChild(bt); ctrl.appendChild(wrap); return; }
+    var lab = document.createElement('label');
+    if (c.check){ lab.className = 'check'; lab.innerHTML = '<input type="checkbox"> <span></span>'; lab.querySelector('span').textContent = c.label; var cb = lab.querySelector('input'); cb.checked = c.val; vals[c.id] = c.val; cb.onchange = function(){ vals[c.id] = cb.checked; }; }
+    else if (c.select){ lab.innerHTML = '<span></span><select></select>'; lab.querySelector('span').textContent = c.label; var se = lab.querySelector('select');
+      c.select.forEach(function(o){ var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; se.appendChild(op); }); se.value = c.val; vals[c.id] = c.val; se.onchange = function(){ vals[c.id] = se.value; }; }
+    else { lab.innerHTML = '<span></span><input type="range">'; var sp = lab.querySelector('span'), r = lab.querySelector('input'); r.min = c.min; r.max = c.max; r.step = c.step; r.value = c.val; vals[c.id] = +c.val;
+      function upd(){ vals[c.id] = +r.value; sc.anim = null; sp.innerHTML = ''; sp.appendChild(document.createTextNode(c.label + ' ')); var bb = document.createElement('b'); bb.textContent = c.fmt(+r.value); sp.appendChild(bb); }
+      r.oninput = upd; upd(); }
+    ctrl.appendChild(lab); });
+  explain.innerHTML = ''; sc.explain.forEach(function(t){ var p = document.createElement('p'); p.textContent = '· ' + t; explain.appendChild(p); });
+  sc.init(); history.replaceState(null, '', '#' + id); }
+function loop(){ if (!W) resize(); g.fillStyle = C.bg; g.fillRect(0, 0, W, H); if (curId) scenes[curId].draw(vals); requestAnimationFrame(loop); }
+resize(); select(order.indexOf(location.hash.slice(1)) >= 0 ? location.hash.slice(1) : 'binom'); requestAnimationFrame(loop);
+</script>
+</body></html>

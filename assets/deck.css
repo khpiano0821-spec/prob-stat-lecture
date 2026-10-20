@@ -1,0 +1,25 @@
+html, body { margin: 0; height: 100%; background: #0E1320; overflow: hidden; font-family: 'Noto Sans KR', Arial, sans-serif; }
+#stage { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+#canvas { position: relative; width: 1920px; height: 1080px; flex: none; transform-origin: center center; }
+#canvas > section { position: absolute; inset: 0; width: 1920px; height: 1080px; box-sizing: border-box; overflow: hidden; }
+#canvas > section:not(.active) { display: none !important; }
+section * { margin: 0; box-sizing: border-box; }
+section h1 { font-size: 96px; font-weight: 600; line-height: 1.1; }
+section h2 { font-size: 64px; font-weight: 600; line-height: 1.15; }
+section h3 { font-size: 44px; font-weight: 600; line-height: 1.2; }
+section p { font-size: 32px; line-height: 1.4; }
+section aside { display: none; }
+section table { border-collapse: collapse; width: 100%; }
+section th, section td { padding: 0.35em 0.6em; border-bottom: 2px solid #C9CFDA; text-align: left; }
+section th { border-bottom: 3px solid #172033; font-weight: 700; }
+section iframe.embed { border: 0; background: transparent; }
+section .frag { opacity: 0; transform: scale(0.85); transition: opacity .3s, transform .3s; }
+section .frag.shown { opacity: 1; transform: none; }
+#bar { position: fixed; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.08); }
+#progress { height: 100%; width: 0; background: #2563EB; transition: width .3s; }
+#hud { position: fixed; left: 16px; right: 16px; bottom: 10px; display: flex; gap: 20px; align-items: center; color: #9AA4B8; font-size: 14px; opacity: 0; transition: opacity .3s; }
+body:hover #hud { opacity: 1; }
+#hud a { color: #C9D4EA; text-decoration: none; }
+#hud .keys { margin-left: auto; }
+#notes { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); width: min(900px, 92vw); background: rgba(14,19,32,.94); color: #E8ECF4; font-size: 18px; line-height: 1.6; padding: 16px 20px; border-radius: 12px; border: 1px solid #2A3550; }
+@media (max-width: 700px) { #hud .keys { display: none; } }

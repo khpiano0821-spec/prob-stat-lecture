@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1주차 확인 퀴즈</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.q h3 { font-size: 18px; margin: 0 0 4px; }
+.q .tag { font-size: 13px; color: var(--muted); }
+.opts { display: grid; gap: 8px; margin-top: 12px; }
+.opt { text-align: left; border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 10px; padding: 10px 14px; font: inherit; cursor: pointer; }
+.opt:hover:not(:disabled) { border-color: var(--blue); }
+.opt.right { border-color: var(--green); background: var(--green-bg); }
+.opt.wrong { border-color: var(--red); background: var(--red-bg); }
+.sort { display: grid; gap: 8px; margin-top: 12px; }
+.sort .item { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: space-between; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; background: var(--bg); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: transparent; color: var(--ink); font: inherit; padding: 6px 14px; cursor: pointer; }
+.seg button.on { background: var(--blue); color: #fff; }
+.seg button.right { background: var(--green); color: #fff; }
+.seg button.wrong { background: var(--red); color: #fff; }
+input.num { font: inherit; width: 160px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); }
+.fb { margin-top: 12px; padding: 10px 14px; border-radius: 10px; font-size: 15px; }
+.fb.ok { background: var(--green-bg); color: var(--green); }
+.fb.no { background: var(--red-bg); color: var(--red); }
+.fb .why { color: var(--ink); display: block; margin-top: 4px; }
+#score { position: sticky; top: 0; z-index: 2; background: var(--bg); padding: 10px 0; border-bottom: 1px solid var(--line); display: flex; gap: 16px; align-items: center; }
+#score .bar { flex: 1; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+#score .fill { height: 100%; width: 0; background: var(--blue); transition: width .3s; }
+#done { display: none; }
+</style>
+</head><body><div class="wrap">
+<a class="back" href="../index.html">← 강의 목록</a>
+<p class="eyebrow">확률과 통계 · 1주차</p>
+<h1>확인 퀴즈: 확률변수와 확률분포</h1>
+<p class="lead">10문항 · 답을 고르면 바로 채점 · 분수는 1/2처럼 입력 가능</p>
+<div id="score"><span id="stxt">0 / 10 풀이</span><div class="bar"><div class="fill" id="sfill"></div></div><span id="sok">정답 0</span></div>
+<div id="qs"></div>
+<div class="card" id="done"><h2 style="margin-top:0">결과</h2><p id="dtxt"></p><div class="row"><button class="btn primary" id="retry">다시 풀기</button><a class="btn" href="slides.html">슬라이드 보기</a><a class="btn" href="../playground/index.html">플레이그라운드</a></div></div>
+<footer>교과서: 미래엔 확률과 통계 Ⅲ-1 (79~85쪽) 범위</footer>
+</div>
+<script>
+var Q = [
+ {t:'mc', tag:'확률변수의 뜻', q:'확률변수에 대한 설명으로 옳은 것은?',
+  o:['표본공간의 각 원소에 실수 하나를 대응시키는 함수','어떤 사건이 일어날 확률 그 자체','시행을 반복한 횟수','표본공간의 원소의 개수'], a:0,
+  why:'확률변수는 이름은 변수지만 실제로는 함수임 (정의역: 표본공간, 공역: 실수 전체).'},
+ {t:'sort', tag:'이산 vs 연속', q:'각 확률변수가 이산인지 연속인지 고르기',
+  items:[['하루 동안 생산된 불량품 개수','이산'],['100 Ω 저항의 실제 저항값','연속'],['버스를 기다리는 시간','연속'],['웨이퍼 한 장의 결함 개수','이산'],['일 년 동안 내린 강수량','연속']],
+  why:'하나, 둘, … 셀 수 있으면 이산 · 길이·시간·무게 같은 측정값은 대부분 연속.'},
+ {t:'num', tag:'확률질량함수', q:'동전 한 개를 두 번 던질 때 앞면이 나온 횟수를 X라 하면 P(X = 1)은?', a:0.5,
+  why:'S = {HH, HT, TH, TT} 중 X = 1은 HT, TH 두 가지 → 2/4 = 1/2.'},
+ {t:'num', tag:'확률질량함수의 성질', q:'P(X=0) = 0.2, P(X=1) = 0.35, P(X=2) = a, P(X=3) = 0.15일 때 a의 값은?', a:0.3,
+  why:'확률의 합 = 1 → 0.2 + 0.35 + a + 0.15 = 1 → a = 0.3.'},
+ {t:'mc', tag:'표본검사 예제', q:'부품 7개 중 불량품 3개, 임의로 3개를 꺼낼 때 불량품이 하나도 없을 확률 P(X = 0)은?',
+  o:['4/35','1/35','12/35','18/35'], a:0,
+  why:'정상품 4개 중 3개를 고르는 경우 ₄C₃ = 4, 전체 ₇C₃ = 35 → 4/35.'},
+ {t:'mc', tag:'연속확률변수', q:'연속확률변수 X에 대하여 P(X = 3)의 값은?',
+  o:['0','f(3)','1','알 수 없음'], a:0,
+  why:'연속확률변수가 특정한 한 값을 가질 확률은 0 · 구간으로만 확률을 물음.'},
+ {t:'num', tag:'회전 원판', q:'0~10 눈금 원판의 바늘이 멈춘 눈금 X에 대하여 P(2 ≤ X ≤ 5)는?', a:0.3,
+  why:'균등분포 f(x) = 1/10 → 넓이 = (5 − 2) × 1/10 = 0.3.'},
+ {t:'num', tag:'확률밀도함수', q:'f(x) = kx (0 ≤ x ≤ 2)가 확률밀도함수일 때 상수 k의 값은?', a:0.5,
+  why:'전체 넓이 = 1 → ∫₀² kx dx = 2k = 1 → k = 1/2 (삼각형 ½ × 2 × 2k = 1).'},
+ {t:'mc', tag:'확률밀도함수', q:'확률밀도함수 f(x)의 값이 1보다 클 수 있는가?',
+  o:['가능함 (넓이만 1이면 됨)','불가능함 (확률은 1 이하)'], a:0,
+  why:'f(x) 자체는 확률이 아님 · 넓이가 확률 · 예: f(x) = 2 (0 ≤ x ≤ 0.5)도 확률밀도함수.'},
+ {t:'num', tag:'계산 대기 시간', q:'f(x) = x(12 − x)/288 (0 ≤ x ≤ 12)일 때 P(X ≤ 6)은?', a:0.5,
+  why:'그래프가 x = 6에 대하여 대칭 → 전체 넓이 1의 절반 = 1/2.'}
+];
+var box = document.getElementById('qs'), done = 0, ok = 0;
+function parseNum(s){ s = String(s).trim().replace(/\s/g,''); if(/^-?\d+(\.\d+)?\/\d+(\.\d+)?$/.test(s)){var p=s.split('/');return parseFloat(p[0])/parseFloat(p[1]);} return s===''?NaN:Number(s); }
+function fb(el, good, why){ var d=document.createElement('div'); d.className='fb '+(good?'ok':'no'); d.innerHTML='<b>'+(good?'정답':'오답')+'</b><span class="why"></span>'; d.querySelector('.why').textContent=why; el.appendChild(d); }
+function mark(good){ done++; if(good) ok++; document.getElementById('stxt').textContent=done+' / '+Q.length+' 풀이'; document.getElementById('sok').textContent='정답 '+ok; document.getElementById('sfill').style.width=(done/Q.length*100)+'%'; if(done===Q.length) finish(); }
+function finish(){ var d=document.getElementById('done'); d.style.display='block'; var r=ok/Q.length;
+  document.getElementById('dtxt').textContent = Q.length+'문항 중 '+ok+'문항 정답 · '+(r>=0.9?'훌륭함, 다음 주 기댓값으로 진행 가능':r>=0.6?'대부분 이해함 · 틀린 문항의 해설 다시 확인':'슬라이드와 플레이그라운드로 개념 복습 권장');
+  try{ localStorage.setItem('w01-quiz-best', Math.max(ok, +localStorage.getItem('w01-quiz-best')||0)); }catch(e){}
+  d.scrollIntoView({behavior:'smooth'}); }
+function render(){
+ box.innerHTML=''; done=0; ok=0; document.getElementById('done').style.display='none';
+ document.getElementById('stxt').textContent='0 / '+Q.length+' 풀이'; document.getElementById('sok').textContent='정답 0'; document.getElementById('sfill').style.width='0';
+ Q.forEach(function(q,i){
+  var c=document.createElement('div'); c.className='card q';
+  c.innerHTML='<div class="tag"></div><h3></h3>'; c.querySelector('.tag').textContent='문항 '+(i+1)+' · '+q.tag; c.querySelector('h3').textContent=q.q;
+  if(q.t==='mc'){
+   var os=document.createElement('div'); os.className='opts';
+   var idx=q.o.map(function(_,k){return k;}); if(q.o.length>2) idx.sort(function(){return Math.random()-0.5;});
+   idx.forEach(function(k){ var b=document.createElement('button'); b.className='opt'; b.textContent=q.o[k];
+    b.onclick=function(){ os.querySelectorAll('button').forEach(function(x){x.disabled=true;}); var good=k===q.a; b.classList.add(good?'right':'wrong');
+     if(!good) os.querySelectorAll('button')[idx.indexOf(q.a)].classList.add('right'); fb(c,good,q.why); mark(good); };
+    os.appendChild(b); });
+   c.appendChild(os);
+  } else if(q.t==='num'){
+   var r=document.createElement('div'); r.className='row'; r.style.marginTop='12px';
+   r.innerHTML='<input class="num" inputmode="decimal" placeholder="예: 0.5 또는 1/2"><button class="btn primary">확인</button>';
+   var inp=r.querySelector('input'), b2=r.querySelector('button');
+   function check(){ var v=parseNum(inp.value); if(isNaN(v)){inp.focus();return;} var good=Math.abs(v-q.a)<1e-6; inp.disabled=b2.disabled=true; fb(c,good,'정답 '+q.a+' · '+q.why); mark(good); }
+   b2.onclick=check; inp.onkeydown=function(e){ if(e.key==='Enter') check(); };
+   c.appendChild(r);
+  } else {
+   var s=document.createElement('div'); s.className='sort'; var picks={};
+   q.items.forEach(function(it,j){ var row=document.createElement('div'); row.className='item'; row.innerHTML='<span></span><span class="seg"><button>이산</button><button>연속</button></span>';
+    row.firstChild.textContent=it[0]; row.querySelectorAll('.seg button').forEach(function(bt){ bt.onclick=function(){ if(s.dataset.lock) return; row.querySelectorAll('.seg button').forEach(function(x){x.classList.remove('on');}); bt.classList.add('on'); picks[j]=bt.textContent; }; });
+    s.appendChild(row); });
+   var go=document.createElement('button'); go.className='btn primary'; go.textContent='채점'; go.style.marginTop='12px';
+   go.onclick=function(){ if(Object.keys(picks).length<q.items.length){ go.textContent='모든 항목 선택 필요'; return; }
+    s.dataset.lock=1; go.disabled=true; var all=true;
+    q.items.forEach(function(it,j){ var row=s.children[j], on=row.querySelector('.on'), good=picks[j]===it[1]; if(!good) all=false; on.classList.remove('on'); on.classList.add(good?'right':'wrong');
+     if(!good) row.querySelectorAll('.seg button').forEach(function(x){ if(x.textContent===it[1]) x.classList.add('right'); }); });
+    fb(c,all,q.why); mark(all); };
+   c.appendChild(s); c.appendChild(go);
+  }
+  box.appendChild(c);
+ });
+}
+document.getElementById('retry').onclick=function(){ render(); window.scrollTo({top:0,behavior:'smooth'}); };
+render();
+</script>
+</body></html>

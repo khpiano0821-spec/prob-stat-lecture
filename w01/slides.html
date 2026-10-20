@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>확률과 통계 1주차: 확률변수와 확률분포</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap">
+<link rel="stylesheet" href="../assets/deck.css">
+</head><body>
+<div id="stage"><div id="canvas">
+<section id="cover" data-transition="fade" style="background:#EEF3FB;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px;display:flex;flex-direction:row;align-items:center;gap:96px">
+<div style="flex:1;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:32px;font-weight:700;color:#2563EB">확률과 통계</p>
+<h1 style="font-size:120px;font-weight:800;line-height:1.1;color:#172033">1주차<br>확률변수와<br>확률분포</h1>
+<p style="font-size:32px;color:#46506A;line-height:1.5">교과서 Ⅲ-1. 확률분포 (79~85쪽)<br>공과대학 1학년</p>
+</div>
+<img src="../assets/media/roulette.png" alt="숫자가 적힌 룰렛 원판 그림" style="width:640px;height:640px;object-fit:contain">
+<aside>오리엔테이션 후 본 수업 시작. 오늘의 핵심: 우연한 결과를 숫자로 바꾸어 다루는 방법. 수업 중 일부 장(동전 실험, 회전 원판, 넓이 탐색기)은 실시간으로 움직이는 시뮬레이션임.</aside>
+</section>
+
+<section id="intro" data-transition="fade" style="background:#172033;color:#F4F6FA;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;align-items:center;gap:32px">
+<h2 style="font-size:64px;font-weight:700;color:#F4F6FA;width:1664px">인트로: 우연을 숫자로</h2>
+<video src="../assets/media/w01_intro.mp4" poster="../assets/media/w01_poster_intro.jpg" controls playsinline preload="metadata" aria-label="동전이 돌고 주사위가 굴러 숫자 0, 1, 2가 떠오르며 막대그래프가 되는 인트로 영상" style="width:1150px;height:647px;object-fit:cover;border-radius:16px"></video>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#BFC8D8;text-align:center">동전·주사위의 결과 → 숫자 → 분포 · 오늘 배울 내용 · 영상: Google Flow (Veo 3.1 Lite)로 생성</p>
+<aside>영상 클릭 시 재생(8초, 소리 있음). 시청 후 질문: 동전과 주사위의 결과가 어떻게 숫자 0, 1, 2가 되었는가? → 오늘 배울 확률변수.</aside>
+</section>
+
+<section id="why" data-transition="fade" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#2563EB">도입</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">공학에서 확률과 통계가 필요한 이유</h2>
+</div>
+<div style="display:flex;flex-direction:row;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#FFFFFF;border:1px solid #E3E7EE;border-radius:16px;padding:24px">
+<img src="../assets/media/assembly.jpg" alt="긴 공장 생산라인" style="width:100%;height:260px;object-fit:cover;border-radius:12px">
+<h3 style="font-size:36px;font-weight:700;color:#2563EB">품질관리</h3>
+<p style="font-size:28px;color:#46506A">하루 생산품 중 불량품 개수</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#FFFFFF;border:1px solid #E3E7EE;border-radius:16px;padding:24px">
+<img src="../assets/media/resistor.jpg" alt="색 띠가 있는 저항기 여섯 개" style="width:100%;height:260px;object-fit:cover;border-radius:12px">
+<h3 style="font-size:36px;font-weight:700;color:#2563EB">허용오차 설계</h3>
+<p style="font-size:28px;color:#46506A">100 Ω 저항의 실제 값 ±5%</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#FFFFFF;border:1px solid #E3E7EE;border-radius:16px;padding:24px">
+<img src="../assets/media/bulb.jpg" alt="필라멘트가 끊어진 전구" style="width:100%;height:260px;object-fit:cover;border-radius:12px">
+<h3 style="font-size:36px;font-weight:700;color:#2563EB">신뢰성 시험</h3>
+<p style="font-size:28px;color:#46506A">전구가 꺼질 때까지의 시간</p>
+</div>
+</div>
+<p style="font-size:32px;font-weight:700;background:#FFF1E6;color:#9A3412;padding:20px 32px;border-radius:12px;text-align:center">같은 부품도 결과가 매번 다름 → 이 흩어짐을 숫자로 다루는 도구 = 확률과 통계</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">사진: Yinan Chen (PD), Evan-Amos (PD), Wikimedia Commons</p>
+<aside>공학의 모든 측정·생산 과정에는 불확실성이 존재함. 사진 세 장을 보며 질문: 같은 부품이 모두 똑같은가?</aside>
+</section>
+
+<section id="goals" data-transition="fade" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#2563EB">도입</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">오늘의 학습 목표</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px;background:#EEF3FB;border-radius:16px;padding:40px">
+<p style="font-size:44px;font-weight:800;color:#2563EB">01</p>
+<h3 style="font-size:40px;font-weight:700">확률변수의 뜻 이해</h3>
+<p style="font-size:28px;color:#46506A">결과 → 숫자로 바꾸는 함수</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#EEF3FB;border-radius:16px;padding:40px">
+<p style="font-size:44px;font-weight:800;color:#2563EB">02</p>
+<h3 style="font-size:40px;font-weight:700">이산과 연속 구별</h3>
+<p style="font-size:28px;color:#46506A">셀 수 있는 값 vs 구간의 모든 실수</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#EEF3FB;border-radius:16px;padding:40px">
+<p style="font-size:44px;font-weight:800;color:#2563EB">03</p>
+<h3 style="font-size:40px;font-weight:700">확률질량함수로 분포 표현</h3>
+<p style="font-size:28px;color:#46506A">표와 막대그래프</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#EEF3FB;border-radius:16px;padding:40px">
+<p style="font-size:44px;font-weight:800;color:#2563EB">04</p>
+<h3 style="font-size:40px;font-weight:700">넓이로 확률 계산</h3>
+<p style="font-size:28px;color:#46506A">확률밀도함수, 정적분</p>
+</div>
+</div>
+<aside>네 가지 목표를 수업 끝 정리 장과 연결함.</aside>
+</section>
+
+<section id="open" data-transition="fade" data-section="확률변수: 결과를 숫자로 바꾸는 함수" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#2563EB">생각 열기 · 교과서 79쪽</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">동전 두 번 던지기</h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:28px;width:800px">
+<p style="font-size:32px;line-height:1.5">한 개의 동전을 두 번 던지는 시행<br>앞면 H, 뒷면 T</p>
+<p style="font-size:36px;font-weight:700;background:#EEF3FB;padding:20px 28px;border-radius:12px">S = {HH, HT, TH, TT}</p>
+<p style="font-size:32px;line-height:1.5">질문: 앞면이 나온 횟수 X가<br>가질 수 있는 값은?</p>
+<p style="font-size:32px;font-weight:700;color:#9A3412">답: 0, 1, 2 중 하나</p>
+</div>
+<iframe class="embed" style="position:absolute;left:1000px;top:300px;width:792px;height:620px" data-srcdoc="&lt;!doctype html&gt;&lt;html&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;
+html,body{margin:0;height:100%}
+body{font-family:&quot;Malgun Gothic&quot;,&quot;Apple SD Gothic Neo&quot;,&quot;Noto Sans KR&quot;,sans-serif;background:#FFFFFF;color:#172033;box-sizing:border-box;padding:28px 36px;display:flex;flex-direction:column;gap:18px;border:2px solid #E3E7EE;border-radius:16px}
+.top{display:flex;align-items:center;gap:22px}
+.coin{width:104px;height:104px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:50px;font-weight:800;color:#FFFFFF;transition:transform .22s}
+.H{background:#2563EB}.T{background:#C2410C}
+.flip{transform:scaleX(.08)}
+#out{font-size:34px;font-weight:700;margin-left:12px}
+#n{font-size:26px;color:#46506A}
+.chart{position:relative;height:300px;display:flex;align-items:flex-end;gap:48px;padding:0 24px;border-bottom:3px solid #172033}
+.col{flex:1;height:100%;position:relative;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.bar{width:100%;background:#2563EB;border-radius:8px 8px 0 0;transition:height .2s}
+.th{position:absolute;left:-10px;right:-10px;border-top:4px dashed #C2410C}
+.val{position:absolute;font-size:26px;font-weight:700}
+.labs{display:flex;gap:48px;padding:0 24px}
+.labs div{flex:1;text-align:center;font-size:28px}
+.note{font-size:24px;color:#46506A}
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;
+&lt;div class=&quot;top&quot;&gt;&lt;div id=&quot;c1&quot; class=&quot;coin H&quot;&gt;H&lt;/div&gt;&lt;div id=&quot;c2&quot; class=&quot;coin T&quot;&gt;T&lt;/div&gt;&lt;div&gt;&lt;div id=&quot;out&quot;&gt;HT → X = 1&lt;/div&gt;&lt;div id=&quot;n&quot;&gt;던진 횟수 0&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=&quot;chart&quot; id=&quot;chart&quot;&gt;&lt;/div&gt;
+&lt;div class=&quot;labs&quot;&gt;&lt;div&gt;X = 0&lt;/div&gt;&lt;div&gt;X = 1&lt;/div&gt;&lt;div&gt;X = 2&lt;/div&gt;&lt;/div&gt;
+&lt;div class=&quot;note&quot;&gt;막대: 실제 상대도수 · 주황 점선: 이론 확률 1/4, 1/2, 1/4&lt;/div&gt;
+&lt;script&gt;
+var MAX=0.7,H=300,cnt=[0,0,0],n=0,th=[0.25,0.5,0.25],bars=[],vals=[];
+var ch=document.getElementById(&#x27;chart&#x27;);
+for(var i=0;i&lt;3;i++){var c=document.createElement(&#x27;div&#x27;);c.className=&#x27;col&#x27;;
+var t=document.createElement(&#x27;div&#x27;);t.className=&#x27;th&#x27;;t.style.bottom=(th[i]/MAX*H)+&#x27;px&#x27;;
+var b=document.createElement(&#x27;div&#x27;);b.className=&#x27;bar&#x27;;b.style.height=&#x27;0px&#x27;;
+var v=document.createElement(&#x27;div&#x27;);v.className=&#x27;val&#x27;;v.style.bottom=&#x27;6px&#x27;;v.textContent=&#x27;0.00&#x27;;
+c.appendChild(b);c.appendChild(t);c.appendChild(v);ch.appendChild(c);bars.push(b);vals.push(v);}
+var c1=document.getElementById(&#x27;c1&#x27;),c2=document.getElementById(&#x27;c2&#x27;),out=document.getElementById(&#x27;out&#x27;),nn=document.getElementById(&#x27;n&#x27;);
+function setCoin(el,h){el.className=&#x27;coin &#x27;+(h?&#x27;H&#x27;:&#x27;T&#x27;);el.textContent=h?&#x27;H&#x27;:&#x27;T&#x27;;}
+function step(){
+ c1.classList.add(&#x27;flip&#x27;);c2.classList.add(&#x27;flip&#x27;);
+ setTimeout(function(){
+  var a=Math.random()&lt;0.5,b=Math.random()&lt;0.5,x=(a?1:0)+(b?1:0);
+  setCoin(c1,a);setCoin(c2,b);cnt[x]++;n++;
+  out.textContent=(a?&#x27;H&#x27;:&#x27;T&#x27;)+(b?&#x27;H&#x27;:&#x27;T&#x27;)+&#x27; → X = &#x27;+x;
+  nn.textContent=&#x27;던진 횟수 &#x27;+n;
+  for(var i=0;i&lt;3;i++){var r=cnt[i]/n,h=Math.min(r,MAX)/MAX*H;bars[i].style.height=h+&#x27;px&#x27;;vals[i].style.bottom=(h+6)+&#x27;px&#x27;;vals[i].textContent=r.toFixed(2);}
+  if(n&gt;=3000){cnt=[0,0,0];n=0;}
+  setTimeout(step,n&lt;12?1100:90);
+ },220);
+}
+setTimeout(step,800);
+&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;"></iframe>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">실시간 시뮬레이션: 동전 두 개를 계속 던지며 X의 상대도수를 기록함</p>
+<aside>학생에게 먼저 질문 후 답 확인. 같은 값 1이 HT와 TH 두 결과에서 나온다는 점 강조. 오른쪽 시뮬레이션은 처음 12번은 천천히, 이후 빠르게 던지며 상대도수가 1/4, 1/2, 1/4에 가까워지는 모습을 보여줌(다음 주 큰수의 법칙 예고).</aside>
+</section>
+
+<section id="slot" data-transition="fade" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#2563EB">비유</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">확률변수 = 결과를 숫자로 바꾸는 기계</h2>
+</div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:64px">
+<div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+<img src="../assets/media/slot.png" alt="슬롯머신 그림" style="width:460px;height:360px;object-fit:contain">
+<p style="font-size:26px;color:#46506A">그림 조합(결과) → 상금(숫자)</p>
+</div>
+<img src="../assets/media/w01_map.png" alt="표본공간 HH, HT, TH, TT가 화살표로 실수 2, 1, 1, 0에 대응되는 그림" style="width:720px;height:460px;object-fit:contain;background:#FFFFFF;border-radius:16px">
+</div>
+<div style="display:flex;flex-direction:row;gap:24px">
+<p style="flex:1;font-size:28px;background:#EEF3FB;padding:20px 24px;border-radius:12px">넣는 것: 시행의 결과</p>
+<p style="flex:1;font-size:28px;background:#EEF3FB;padding:20px 24px;border-radius:12px">나오는 것: 실수 하나</p>
+<p style="flex:1;font-size:28px;background:#EEF3FB;padding:20px 24px;border-radius:12px">HT, TH → 같은 1도 가능</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">그림: gnokii, Slot machine, CC0, Wikimedia Commons</p>
+<aside>슬롯머신: 그림(결과)이 나오면 기계가 상금(숫자)을 정해 줌. 확률변수도 시행 결과마다 숫자 하나를 정해 주는 규칙.</aside>
+</section>
+
+<section id="def" data-transition="fade" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#2563EB">정의 · 교과서 79쪽</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">확률변수의 정의</h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#EEF3FB;border:2px solid #2563EB;border-radius:16px;padding:40px 48px">
+<p style="font-size:36px;font-weight:700">표본공간의 각 원소에 실수 하나를 대응시키는 함수 = 확률변수</p>
+<p style="font-size:44px;font-weight:700;color:#2563EB">X : S → 실수 전체</p>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+<div style="display:flex;flex-direction:column;gap:8px;background:#FFFFFF;border:1px solid #E3E7EE;border-radius:12px;padding:28px">
+<h3 style="font-size:32px;font-weight:700">이름은 변수, 실제는 함수</h3>
+<p style="font-size:28px;color:#46506A">정의역: 표본공간 S · 공역: 실수 전체</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FFFFFF;border:1px solid #E3E7EE;border-radius:12px;padding:28px">
+<h3 style="font-size:32px;font-weight:700">기호</h3>
+<p style="font-size:28px;color:#46506A">확률변수 X, Y, Z · 그 값 x, y, z</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FFFFFF;border:1px solid #E3E7EE;border-radius:12px;padding:28px">
+<h3 style="font-size:32px;font-weight:700">P(X = x)</h3>
+<p style="font-size:28px;color:#46506A">확률변수 X가 값 x를 가질 확률</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FFF1E6;border-radius:12px;padding:28px">
+<h3 style="font-size:32px;font-weight:700;color:#9A3412">공학 예</h3>
+<p style="font-size:28px;color:#46506A">부품 10개 검사 → X = 불량품 개수 (0~10)</p>
+</div>
+</div>
+<aside>대문자는 함수(규칙), 소문자는 그 함수가 내놓은 값이라는 구분 강조.</aside>
+</section>
+
+<section id="flip" data-transition="fade" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:row;gap:64px">
+<img src="../assets/media/flipbook.jpg" alt="손으로 플립북을 넘기는 1886년 삽화" style="width:560px;height:792px;object-fit:contain">
+<div style="flex:1;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#2563EB">비유 · 교과서 79쪽 다가서기</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">플립북: 이산과 연속</h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#EEF3FB;border:2px solid #2563EB;border-radius:16px;padding:36px 40px">
+<h3 style="font-size:40px;font-weight:700;color:#2563EB">이산확률변수 = 낱장</h3>
+<p style="font-size:30px;line-height:1.5">값이 유한개이거나<br>자연수처럼 하나, 둘, … 셀 수 있음</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FFF1E6;border:2px solid #C2410C;border-radius:16px;padding:36px 40px">
+<h3 style="font-size:40px;font-weight:700;color:#9A3412">연속확률변수 = 움직임</h3>
+<p style="font-size:30px;line-height:1.5">어떤 범위 안의 모든 실수 값<br>값과 값 사이에 빈틈 없음</p>
+</div>
+</div>
+<p style="position:absolute;left:752px;bottom:64px;width:1040px;font-size:24px;color:#6B7280">그림: John Barnes Linnet, The Kineograph (1886), 퍼블릭 도메인</p>
+<aside>플립북 한 장 한 장은 끊어진 그림이지만 빠르게 넘기면 연속 동작으로 보임. 이산 = 낱장, 연속 = 움직임.</aside>
+</section>
+
+<section id="bowl" data-transition="fade" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#2563EB">이산확률변수 · 교과서 80쪽 예제 1 ⑴</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">스트라이크까지 굴린 횟수</h2>
+</div>
+<div style="display:flex;flex-direction:row;gap:56px;align-items:center">
+<img src="../assets/media/bowling.gif" alt="볼링공이 핀을 모두 쓰러뜨리는 스트라이크 애니메이션" style="width:820px;height:410px;object-fit:cover;border-radius:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px">
+<p style="font-size:32px">성공 s, 실패 f</p>
+<p style="font-size:32px">S = {s, fs, ffs, fffs, …}</p>
+<p style="font-size:32px">X = 1, 2, 3, 4, …</p>
+<p style="font-size:32px;font-weight:700;color:#2563EB">무한히 많지만 셀 수 있음 → 이산</p>
+</div>
+</div>
+<p style="font-size:28px;background:#FFF1E6;padding:20px 28px;border-radius:12px"><b>공학의 이산확률변수</b>  하루 불량품 개수 · 1초 동안 들어온 패킷 수 · 웨이퍼 한 장의 결함 개수</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">애니메이션: Groink, 10-pin bowling strike, CC0, Wikimedia Commons</p>
+<aside>GIF는 자동 반복 재생. 무한히 많지만 셀 수 있으면 이산이라는 점 강조.</aside>
+</section>
+
+<section id="bus" data-transition="fade" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#C2410C">연속확률변수 · 교과서 80쪽 예제 1 ⑵</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">버스를 기다리는 시간</h2>
+</div>
+<div style="display:flex;flex-direction:row;gap:56px;align-items:center">
+<img src="../assets/media/bus.jpg" alt="버스 정류장에서 버스를 기다리는 사람들" style="width:620px;height:410px;object-fit:cover;border-radius:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px">
+<p style="font-size:32px">7분 간격으로 오는 버스</p>
+<p style="font-size:32px">기다리는 시간 X (분)</p>
+<p style="font-size:32px">S = {x | 0 ≤ x ≤ 7}</p>
+<p style="font-size:32px;font-weight:700;color:#9A3412">0 이상 7 이하 모든 실수 → 연속</p>
+</div>
+</div>
+<p style="font-size:28px;background:#EEF3FB;padding:20px 28px;border-radius:12px"><b>공학의 연속확률변수</b>  저항값(Ω) · 전구 수명(시간) · 측정 오차(mm) · 잡음 전압(V)</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">사진: 玄史生, CC0, Wikimedia Commons</p>
+<aside>3분, 3.5분, 3.14159…분 등 0~7 사이 어떤 값이든 가능.</aside>
+</section>
+
+<section id="quiz" data-transition="fade" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#2563EB">확인 문제 · 교과서 80쪽 문제 2 + 공학 문항</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">이산일까, 연속일까?</h2>
+</div>
+<p style="position:absolute;left:128px;top:320px;width:1300px;font-size:34px">⑴ 어느 지역에 일 년 동안 내리는 강수량</p>
+<p style="position:absolute;left:128px;top:412px;width:1300px;font-size:34px">⑵ 어느 날 동물원의 입장객 수</p>
+<p style="position:absolute;left:128px;top:504px;width:1300px;font-size:34px">⑶ 동전 10개를 던질 때 앞면이 나온 동전의 개수</p>
+<p style="position:absolute;left:128px;top:596px;width:1300px;font-size:34px">⑷ 어느 공장에서 생산된 전구의 수명</p>
+<p style="position:absolute;left:128px;top:688px;width:1300px;font-size:34px">⑸ 반도체 웨이퍼 한 장에서 발견된 결함 개수</p>
+<p style="position:absolute;left:128px;top:780px;width:1300px;font-size:34px">⑹ 스프링 길이를 측정한 값</p>
+<p style="position:absolute;left:1500px;top:312px;width:292px;font-size:32px;color:#9CA3AF;text-align:center;border:2px dashed #C9CFDA;border-radius:12px;padding:8px 0">?</p>
+<p style="position:absolute;left:1500px;top:404px;width:292px;font-size:32px;color:#9CA3AF;text-align:center;border:2px dashed #C9CFDA;border-radius:12px;padding:8px 0">?</p>
+<p style="position:absolute;left:1500px;top:496px;width:292px;font-size:32px;color:#9CA3AF;text-align:center;border:2px dashed #C9CFDA;border-radius:12px;padding:8px 0">?</p>
+<p style="position:absolute;left:1500px;top:588px;width:292px;font-size:32px;color:#9CA3AF;text-align:center;border:2px dashed #C9CFDA;border-radius:12px;padding:8px 0">?</p>
+<p style="position:absolute;left:1500px;top:680px;width:292px;font-size:32px;color:#9CA3AF;text-align:center;border:2px dashed #C9CFDA;border-radius:12px;padding:8px 0">?</p>
+<p style="position:absolute;left:1500px;top:772px;width:292px;font-size:32px;color:#9CA3AF;text-align:center;border:2px dashed #C9CFDA;border-radius:12px;padding:8px 0">?</p>
+<p class="frag" data-order="1" style="position:absolute;left:1500px;top:312px;width:292px;font-size:32px;font-weight:700;color:#9A3412;background:#FFF1E6;text-align:center;border:2px solid #C2410C;border-radius:12px;padding:8px 0">연속</p>
+<p class="frag" data-order="2" style="position:absolute;left:1500px;top:404px;width:292px;font-size:32px;font-weight:700;color:#1D4ED8;background:#EEF3FB;text-align:center;border:2px solid #2563EB;border-radius:12px;padding:8px 0">이산</p>
+<p class="frag" data-order="3" style="position:absolute;left:1500px;top:496px;width:292px;font-size:32px;font-weight:700;color:#1D4ED8;background:#EEF3FB;text-align:center;border:2px solid #2563EB;border-radius:12px;padding:8px 0">이산</p>
+<p class="frag" data-order="4" style="position:absolute;left:1500px;top:588px;width:292px;font-size:32px;font-weight:700;color:#9A3412;background:#FFF1E6;text-align:center;border:2px solid #C2410C;border-radius:12px;padding:8px 0">연속</p>
+<p class="frag" data-order="5" style="position:absolute;left:1500px;top:680px;width:292px;font-size:32px;font-weight:700;color:#1D4ED8;background:#EEF3FB;text-align:center;border:2px solid #2563EB;border-radius:12px;padding:8px 0">이산</p>
+<p class="frag" data-order="6" style="position:absolute;left:1500px;top:772px;width:292px;font-size:32px;font-weight:700;color:#9A3412;background:#FFF1E6;text-align:center;border:2px solid #C2410C;border-radius:12px;padding:8px 0">연속</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">판단 기준: 하나, 둘, … 셀 수 있으면 이산 · 측정값(길이, 시간, 무게)은 대부분 연속 · 발표 모드에서 클릭할 때마다 정답 표시</p>
+<aside>1~2분 생각할 시간 후 발표 모드에서 클릭으로 정답을 하나씩 공개. 정답: ⑴ 연속 ⑵ 이산 ⑶ 이산 ⑷ 연속 ⑸ 이산 ⑹ 연속.</aside>
+</section>
+
+<section id="pmf" data-transition="fade" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#2563EB">확률질량함수 · 교과서 81쪽</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">이산확률변수의 확률분포</h2>
+</div>
+<div style="display:flex;flex-direction:row;gap:56px;align-items:center">
+<div style="flex:1;display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;flex-direction:column;gap:12px;background:#EEF3FB;border:2px solid #2563EB;border-radius:16px;padding:32px 36px">
+<p style="font-size:30px;font-weight:700">값 xᵢ에 확률 pᵢ를 대응시키는 함수</p>
+<p style="font-size:40px;font-weight:700;color:#2563EB">P(X = xᵢ) = pᵢ   (i = 1, 2, …, n)</p>
+</div>
+<p style="font-size:30px">대응 관계 = 확률분포 · 예: 동전 두 번, 앞면 횟수 X</p>
+<table style="font-size:30px;color:#172033">
+<tr><th style="width:28%">X</th><th style="width:18%;text-align:center">0</th><th style="width:18%;text-align:center">1</th><th style="width:18%;text-align:center">2</th><th style="width:18%;text-align:center">합계</th></tr>
+<tr><td>P(X = x)</td><td style="text-align:center">1/4</td><td style="text-align:center">1/2</td><td style="text-align:center">1/4</td><td style="text-align:center">1</td></tr>
+</table>
+<p style="font-size:28px;color:#46506A">질량 = 각 값 위에 얹힌 확률의 무게</p>
+</div>
+<img src="../assets/media/w01_pmf_coin.png" alt="X = 0, 1, 2의 확률 1/4, 1/2, 1/4 막대그래프" style="width:700px;height:507px;object-fit:contain;background:#FFFFFF;border-radius:16px">
+</div>
+<aside>확률분포 = 값과 확률의 대응 관계. 표와 그래프 두 가지로 표현.</aside>
+</section>
+
+<section id="pmfprop" data-transition="fade" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#2563EB">확률질량함수 · 교과서 82쪽</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">확률질량함수의 성질</h2>
+</div>
+<img src="../assets/media/w01_f_pmf_props.png" alt="성질 1: 0 ≤ pᵢ ≤ 1, 성질 2: p₁ + p₂ + … + pₙ = 1, 성질 3: P(xᵢ ≤ X ≤ xⱼ) = pᵢ + … + pⱼ" style="width:1100px;height:312px;object-fit:contain">
+<div style="display:flex;flex-direction:column;gap:12px;background:#FFF1E6;border:2px solid #C2410C;border-radius:16px;padding:32px 40px">
+<h3 style="font-size:36px;font-weight:700;color:#9A3412">비유: 확률 1리터를 여러 컵에 나눠 담기</h3>
+<p style="font-size:30px">컵 하나는 0 이상 1 이하 · 모든 컵의 합 = 1 · 구간의 확률 = 그 구간 컵들의 합</p>
+</div>
+<aside>전체 확률 1을 여러 컵에 나눠 담는 비유. 각 컵은 0~1, 모두 합치면 1, 구간 확률은 해당 컵의 합.</aside>
+</section>
+
+<section id="defect" data-transition="fade" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#2563EB">예제 · 교과서 82쪽 예제 2를 공학 상황으로 변형</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">부품 표본검사의 불량품 개수</h2>
+</div>
+<div style="display:flex;flex-direction:row;gap:48px;align-items:center">
+<div style="flex:1;display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;flex-direction:row;gap:32px;align-items:center">
+<img src="../assets/media/mug.jpg" alt="머그컵을 하나씩 꺼내 검사하는 모습" style="width:340px;height:255px;object-fit:cover;border-radius:12px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:30px">부품 7개 중 불량품 3개</p>
+<p style="font-size:30px">임의로 3개 꺼내 검사</p>
+<p style="font-size:30px;font-weight:700">X = 꺼낸 불량품 개수</p>
+</div>
+</div>
+<img src="../assets/media/w01_f_hyper.png" alt="P(X = x) = ₃Cₓ × ₄C₃₋ₓ / ₇C₃, x = 0, 1, 2, 3" style="width:880px;height:117px;object-fit:contain">
+<p style="font-size:34px;font-weight:700;color:#9A3412">P(X ≥ 2) = 12/35 + 1/35 = 13/35</p>
+<p style="font-size:28px;color:#46506A">→ 3개 중 2개 이상이 불량일 확률 약 37%</p>
+</div>
+<img src="../assets/media/w01_pmf_defect.png" alt="불량품 개수 0, 1, 2, 3의 확률 4/35, 18/35, 12/35, 1/35 막대그래프, 2와 3은 주황색" style="width:640px;height:464px;object-fit:contain;background:#FFFFFF;border-radius:16px">
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">사진: Encik Tekateki, Quality Control of Ceramic Mugs, CC BY-SA 4.0, Wikimedia Commons</p>
+<aside>7개 중 3개를 뽑는 경우의 수 ₇C₃ = 35. P(X ≥ 2) = 12/35 + 1/35 = 13/35. 비복원추출(초기하분포)이라는 이름은 나중에 소개.</aside>
+</section>
+
+<section id="wheel" data-transition="fade" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:row;gap:72px;align-items:center">
+<img src="../assets/media/roulette.png" alt="숫자가 적힌 룰렛 원판 그림" style="width:620px;height:620px;object-fit:contain">
+<div style="flex:1;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#C2410C">연속확률변수 · 교과서 83쪽</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">연속은 왜 다를까?<br>회전 원판</h2>
+</div>
+<p style="font-size:32px">0~10 눈금 원판, 바늘이 멈춘 눈금 X</p>
+<p style="font-size:32px;font-weight:700">질문: 바늘이 정확히 3.000…에 멈출 확률은?</p>
+<p style="font-size:30px;color:#46506A">가능한 값이 무수히 많음 → 한 점의 확률 = 0</p>
+<p style="font-size:32px;font-weight:700;background:#FFF1E6;color:#9A3412;padding:20px 28px;border-radius:12px">구간으로 물음: P(a ≤ X ≤ b) = (b − a) / 10</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">그림: Douglas Perkins, Basic roulette wheel, CC0, Wikimedia Commons</p>
+<aside>바늘이 정확히 3.000…에 멈출 확률은? → 0. 그래서 연속은 한 점이 아니라 구간으로 확률을 물음. 다음 장에서 실제로 400번 돌려 봄.</aside>
+</section>
+
+<section id="spin" data-transition="fade" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#C2410C">실시간 시뮬레이션 · 교과서 83쪽</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">원판을 400번 돌리면</h2>
+</div>
+<iframe class="embed" style="position:absolute;left:128px;top:300px;width:1664px;height:640px" data-srcdoc="&lt;!doctype html&gt;&lt;html&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;
+html,body{margin:0;height:100%;background:#FFFFFF}
+body{border:2px solid #E3E7EE;border-radius:16px;box-sizing:border-box;overflow:hidden}
+canvas{display:block;width:100%;height:100%}
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;canvas id=&quot;c&quot;&gt;&lt;/canvas&gt;&lt;script&gt;
+var cv=document.getElementById(&#x27;c&#x27;),g=cv.getContext(&#x27;2d&#x27;),W=0,H=0;
+var F=&#x27;&quot;Malgun Gothic&quot;,&quot;Apple SD Gothic Neo&quot;,&quot;Noto Sans KR&quot;,sans-serif&#x27;;
+function rs(){var r=window.devicePixelRatio||1;W=cv.clientWidth;H=cv.clientHeight;cv.width=W*r;cv.height=H*r;g.setTransform(r,0,0,r,0,0);}
+rs();window.addEventListener(&#x27;resize&#x27;,rs);
+var N=400,SLOW=5,stops=[],cur=0,from=0,to=0,t0=0,phase=&#x27;slow&#x27;,holdT=0,pushed=false;
+function ang(v){return -Math.PI/2+2*Math.PI*v/10;}
+function startSpin(now){var v=Math.random()*10;from=cur;to=cur+20+((v-(cur%10))+10)%10;t0=now;}
+function wheel(cx,cy,R){
+ g.fillStyle=&#x27;#EEF3FB&#x27;;g.strokeStyle=&#x27;#172033&#x27;;g.lineWidth=4;g.beginPath();g.arc(cx,cy,R,0,7);g.fill();g.stroke();
+ g.font=&#x27;700 28px &#x27;+F;g.textAlign=&#x27;center&#x27;;g.textBaseline=&#x27;middle&#x27;;g.fillStyle=&#x27;#172033&#x27;;
+ for(var k=0;k&lt;10;k++){var a=ang(k);g.beginPath();g.moveTo(cx+Math.cos(a)*R*.86,cy+Math.sin(a)*R*.86);g.lineTo(cx+Math.cos(a)*R,cy+Math.sin(a)*R);g.stroke();
+  g.fillText(k===0?&#x27;0/10&#x27;:String(k),cx+Math.cos(a)*(R+40),cy+Math.sin(a)*(R+40));}
+ g.fillStyle=&#x27;rgba(194,65,12,0.55)&#x27;;
+ for(var i=Math.max(0,stops.length-150);i&lt;stops.length;i++){var a2=ang(stops[i]);g.beginPath();g.arc(cx+Math.cos(a2)*R*.93,cy+Math.sin(a2)*R*.93,4,0,7);g.fill();}
+ var a3=ang(cur%10);g.strokeStyle=&#x27;#DC2626&#x27;;g.lineWidth=8;g.lineCap=&#x27;round&#x27;;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+Math.cos(a3)*R*.8,cy+Math.sin(a3)*R*.8);g.stroke();
+ g.fillStyle=&#x27;#172033&#x27;;g.beginPath();g.arc(cx,cy,12,0,7);g.fill();
+}
+function hist(x0,y0,w,h,shade){
+ var n=stops.length,cnt=[0,0,0,0,0,0,0,0,0,0],YM=0.25;
+ for(var i=0;i&lt;n;i++)cnt[Math.min(9,Math.floor(stops[i]))]++;
+ g.strokeStyle=&#x27;#172033&#x27;;g.lineWidth=3;g.beginPath();g.moveTo(x0,y0);g.lineTo(x0,y0+h);g.lineTo(x0+w,y0+h);g.stroke();
+ var bw=w/10;
+ if(shade&gt;0){g.fillStyle=&#x27;rgba(234,88,12,&#x27;+(0.35*shade)+&#x27;)&#x27;;g.fillRect(x0+3*bw,y0+h-0.1/YM*h,4*bw*shade,0.1/YM*h);}
+ for(var k=0;k&lt;10;k++){var d=n?cnt[k]/n:0,bh=Math.min(d,YM)/YM*h;g.fillStyle=shade&gt;0?&#x27;rgba(37,99,235,0.35)&#x27;:&#x27;#2563EB&#x27;;g.fillRect(x0+k*bw+4,y0+h-bh,bw-8,bh);}
+ var ly=y0+h-0.1/YM*h;g.setLineDash([14,10]);g.strokeStyle=&#x27;#C2410C&#x27;;g.lineWidth=4;g.beginPath();g.moveTo(x0,ly);g.lineTo(x0+w,ly);g.stroke();g.setLineDash([]);
+ g.font=&#x27;700 28px &#x27;+F;g.fillStyle=&#x27;#9A3412&#x27;;g.textAlign=&#x27;right&#x27;;g.textBaseline=&#x27;bottom&#x27;;g.fillText(&#x27;f(x) = 1/10&#x27;,x0+w,ly-8);
+ g.font=&#x27;26px &#x27;+F;g.fillStyle=&#x27;#46506A&#x27;;g.textAlign=&#x27;center&#x27;;g.textBaseline=&#x27;top&#x27;;
+ for(var t=0;t&lt;=10;t+=2)g.fillText(String(t),x0+t*bw,y0+h+10);
+ g.textAlign=&#x27;left&#x27;;g.textBaseline=&#x27;top&#x27;;g.font=&#x27;700 30px &#x27;+F;g.fillStyle=&#x27;#172033&#x27;;g.fillText(&#x27;돌린 횟수 &#x27;+n,x0+10,y0-6);
+ var m=0;for(var j=0;j&lt;n;j++)if(stops[j]&gt;=3&amp;&amp;stops[j]&lt;=7)m++;
+ g.font=&#x27;28px &#x27;+F;g.fillStyle=&#x27;#172033&#x27;;g.textAlign=&#x27;left&#x27;;g.textBaseline=&#x27;top&#x27;;
+ g.fillText(&#x27;P(3 ≤ X ≤ 7)  실제 &#x27;+(n?(m/n).toFixed(3):&#x27;-&#x27;)+&#x27;  ·  이론 0.4&#x27;,x0+10,y0+h+52);
+}
+function frame(now){
+ if(phase===&#x27;slow&#x27;){var p=Math.max(0,Math.min(1,(now-t0)/1500));cur=from+(to-from)*(1-Math.pow(1-p,3));
+  if(p&gt;=1){if(!pushed){stops.push(to%10);pushed=true;}
+   if(now-t0&gt;2100){if(stops.length&gt;=SLOW){phase=&#x27;fast&#x27;;}else{startSpin(now);pushed=false;}}}}
+ else if(phase===&#x27;fast&#x27;){for(var q=0;q&lt;3&amp;&amp;stops.length&lt;N;q++){var v=Math.random()*10;stops.push(v);cur=v;}if(stops.length&gt;=N){phase=&#x27;hold&#x27;;holdT=now;}}
+ else if(now-holdT&gt;9000){stops=[];phase=&#x27;slow&#x27;;startSpin(now);pushed=false;}
+ g.clearRect(0,0,W,H);
+ var R=Math.min(H*0.36,W*0.16);wheel(R+70,H/2,R);
+ var sh=phase===&#x27;hold&#x27;?Math.min(1,(now-holdT)/1500):0;
+ var hx=R*2+200;hist(hx,70,W-hx-60,H-200,sh);
+ requestAnimationFrame(frame);
+}
+startSpin(performance.now()+600);t0=performance.now()+600;requestAnimationFrame(frame);
+&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;"></iframe>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">처음 5번은 천천히, 이후 400번까지 빠르게 · 멈춘 눈금이 고르게 쌓임 → f(x) = 1/10 · 넓이 = 확률</p>
+<aside>실시간 시뮬레이션(매번 다른 결과). 처음 5번은 천천히 돌며 바늘이 멈추는 모습, 이후 400번까지 빠르게 쌓임. 막대가 평평해지면 3~7 구간이 주황으로 칠해지며 실제 비율과 이론값 0.4 비교. 약 9초 후 처음부터 다시 시작.</aside>
+</section>
+
+<section id="pdf" data-transition="fade" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#C2410C">확률밀도함수 · 교과서 83·85쪽</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">연속확률변수의 확률분포</h2>
+</div>
+<div style="display:flex;flex-direction:row;gap:56px;align-items:center">
+<img src="../assets/media/w01_f_pdf_props.png" alt="성질 1: f(x) ≥ 0, 성질 2: α부터 β까지 f(x)의 정적분 = 1, 성질 3: P(a ≤ X ≤ b) = a부터 b까지 f(x)의 정적분" style="width:560px;height:464px;object-fit:contain">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FFF1E6;border:2px solid #C2410C;border-radius:16px;padding:36px 40px">
+<h3 style="font-size:36px;font-weight:700;color:#9A3412">밀도 = 확률이 얼마나 빽빽한지</h3>
+<p style="font-size:30px;line-height:1.6">f(x) 자체는 확률이 아님<br>넓이(정적분)가 확률<br>f(x) &gt; 1인 경우도 가능</p>
+</div>
+</div>
+<div style="display:flex;flex-direction:row;gap:32px;align-items:center;background:#EEF3FB;border-radius:16px;padding:24px 36px">
+<p style="font-size:30px;font-weight:700;color:#1D4ED8;white-space:nowrap">한 점의 확률 = 0</p>
+<img src="../assets/media/w01_f_point.png" alt="P(X = a) = 0 이므로 P(a ≤ X ≤ b) = P(a &lt; X &lt; b)" style="width:1040px;height:68px;object-fit:contain">
+</div>
+<aside>α ≤ x ≤ β에서 정의된 f(x). 성질 2: 전체 넓이 1, 성질 3: 구간 확률 = 넓이 = 정적분. 한 점의 확률이 0이므로 등호 유무와 상관없이 같은 확률.</aside>
+</section>
+
+<section id="flipvid" data-transition="fade" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;align-items:center;gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px;width:1664px">
+<p style="font-size:24px;font-weight:700;color:#C2410C">애니메이션 · 교과서 85쪽 탐구</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">막대에서 곡선으로</h2>
+</div>
+<video src="../assets/media/w01_flipbook.mp4" poster="../assets/media/w01_poster_flip.jpg" controls playsinline preload="metadata" muted aria-label="막대 폭이 줄어들며 확률밀도함수 곡선이 되고 0부터 3까지 넓이가 색칠되는 애니메이션" style="width:1060px;height:596px;object-fit:contain;background:#FFFFFF;border-radius:16px"></video>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280;text-align:center">계산 대기 시간 f(x) = x(12 − x)/288 · 막대 넓이의 합(이산) → 곡선 아래 넓이(연속)</p>
+<aside>영상 클릭 시 재생(약 17초). 막대 폭이 0으로 가는 극한 = 확률밀도함수. 플립북 비유와 연결. 마지막 장면: P(0 ≤ X ≤ 3) = 5/32.</aside>
+</section>
+
+<section id="area" data-transition="fade" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#C2410C">실시간 탐색기 · 교과서 85쪽</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">구간이 바뀌면 넓이도 바뀜</h2>
+</div>
+<iframe class="embed" style="position:absolute;left:128px;top:300px;width:1664px;height:640px" data-srcdoc="&lt;!doctype html&gt;&lt;html&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;
+html,body{margin:0;height:100%;background:#FFFFFF}
+body{border:2px solid #E3E7EE;border-radius:16px;box-sizing:border-box;overflow:hidden}
+canvas{display:block;width:100%;height:100%}
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;canvas id=&quot;c&quot;&gt;&lt;/canvas&gt;&lt;script&gt;
+var cv=document.getElementById(&#x27;c&#x27;),g=cv.getContext(&#x27;2d&#x27;),W=0,H=0;
+var F=&#x27;&quot;Malgun Gothic&quot;,&quot;Apple SD Gothic Neo&quot;,&quot;Noto Sans KR&quot;,sans-serif&#x27;;
+function rs(){var r=window.devicePixelRatio||1;W=cv.clientWidth;H=cv.clientHeight;cv.width=W*r;cv.height=H*r;g.setTransform(r,0,0,r,0,0);}
+rs();window.addEventListener(&#x27;resize&#x27;,rs);
+function f(x){return x*(12-x)/288;}
+function Fc(x){return (6*x*x-x*x*x/3)/288;}
+var targets=[[0,3],[3,9],[6,12],[2,4],[0,12],[8,11],[4.5,7.5],[0,6]],ti=0,a=0,b=3,fa=0,fb=3,ta=0,tb=3,t0=0;
+function ease(t){return t*t*(3-2*t);}
+function fmt(v){return (Math.round(v*10)/10).toFixed(1);}
+function frame(now){
+ var el=(now-t0)/1000;
+ if(el&gt;4.2){t0=now;fa=a;fb=b;ti=(ti+1)%targets.length;ta=targets[ti][0];tb=targets[ti][1];el=0;}
+ var p=ease(Math.min(1,el/1.4));a=fa+(ta-fa)*p;b=fb+(tb-fb)*p;
+ g.clearRect(0,0,W,H);
+ var L=110,R=W-420,T=60,B=H-90,YM=0.15;
+ function X(x){return L+(R-L)*x/12;}function Y(y){return B-(B-T)*y/YM;}
+ g.beginPath();g.moveTo(X(a),Y(0));for(var i=0;i&lt;=100;i++){var x=a+(b-a)*i/100;g.lineTo(X(x),Y(f(x)));}g.lineTo(X(b),Y(0));g.closePath();g.fillStyle=&#x27;rgba(234,88,12,0.45)&#x27;;g.fill();
+ g.strokeStyle=&#x27;#2563EB&#x27;;g.lineWidth=6;g.beginPath();for(var j=0;j&lt;=200;j++){var x2=12*j/200;if(j)g.lineTo(X(x2),Y(f(x2)));else g.moveTo(X(x2),Y(f(x2)));}g.stroke();
+ g.strokeStyle=&#x27;#172033&#x27;;g.lineWidth=3;g.beginPath();g.moveTo(L,T-20);g.lineTo(L,B);g.lineTo(R+20,B);g.stroke();
+ g.font=&#x27;26px &#x27;+F;g.fillStyle=&#x27;#46506A&#x27;;g.textAlign=&#x27;center&#x27;;g.textBaseline=&#x27;top&#x27;;
+ for(var k=0;k&lt;=12;k+=2)g.fillText(String(k),X(k),B+10);
+ g.fillText(&#x27;기다리는 시간 x (분)&#x27;,(L+R)/2,B+46);
+ g.textAlign=&#x27;right&#x27;;g.textBaseline=&#x27;middle&#x27;;for(var q=0;q&lt;=0.15001;q+=0.05)g.fillText(q.toFixed(2),L-12,Y(q));
+ g.strokeStyle=&#x27;#C2410C&#x27;;g.lineWidth=3;g.setLineDash([10,8]);
+ g.beginPath();g.moveTo(X(a),Y(0));g.lineTo(X(a),Y(f(a)));g.moveTo(X(b),Y(0));g.lineTo(X(b),Y(f(b)));g.stroke();g.setLineDash([]);
+ g.font=&#x27;700 30px &#x27;+F;g.fillStyle=&#x27;#2563EB&#x27;;g.textAlign=&#x27;left&#x27;;g.textBaseline=&#x27;bottom&#x27;;g.fillText(&#x27;f(x) = x(12 − x)/288&#x27;,X(7.6),Y(0.135));
+ var px=R+60;g.textAlign=&#x27;left&#x27;;g.textBaseline=&#x27;top&#x27;;
+ g.font=&#x27;700 30px &#x27;+F;g.fillStyle=&#x27;#172033&#x27;;g.fillText(&#x27;구간&#x27;,px,T+10);
+ g.font=&#x27;700 40px &#x27;+F;g.fillStyle=&#x27;#9A3412&#x27;;g.fillText(fmt(a)+&#x27; ≤ X ≤ &#x27;+fmt(b),px,T+56);
+ g.font=&#x27;700 30px &#x27;+F;g.fillStyle=&#x27;#172033&#x27;;g.fillText(&#x27;넓이 = 확률&#x27;,px,T+150);
+ g.font=&#x27;800 64px &#x27;+F;g.fillStyle=&#x27;#9A3412&#x27;;g.fillText((Fc(b)-Fc(a)).toFixed(3),px,T+196);
+ g.font=&#x27;26px &#x27;+F;g.fillStyle=&#x27;#46506A&#x27;;
+ g.fillText(&#x27;전체 넓이 = 1&#x27;,px,T+310);g.fillText(&#x27;가운데 구간일수록&#x27;,px,T+352);g.fillText(&#x27;같은 폭이라도 큰 확률&#x27;,px,T+388);
+ requestAnimationFrame(frame);
+}
+requestAnimationFrame(function(n){t0=n;frame(n);});
+&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;"></iframe>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">구간 [a, b]가 자동으로 바뀌며 넓이 P(a ≤ X ≤ b) = ∫ f(x) dx 값을 실시간 계산 · 4초마다 다음 구간</p>
+<aside>자동으로 구간이 바뀌는 탐색기. 학생에게 다음 구간의 확률을 먼저 예측하게 한 뒤 값 확인. 0~12 전체는 1, 0~6은 대칭이라 0.5. 2~4와 4.5~7.5처럼 폭이 비슷해도 가운데가 더 큼 → 밀도의 의미.</aside>
+</section>
+
+<section id="kx" data-transition="fade" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#C2410C">예제 · 교과서 84쪽 예제 3</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">확률밀도함수 f(x) = kx  (0 ≤ x ≤ 3)</h2>
+</div>
+<div style="display:flex;flex-direction:row;gap:56px;align-items:center">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px">
+<h3 style="font-size:34px;font-weight:700;color:#2563EB">⑴ 상수 k의 값</h3>
+<img src="../assets/media/w01_f_ex_k.png" alt="0부터 3까지 kx의 정적분 = 9/2 k = 1 이므로 k = 2/9" style="width:540px;height:140px;object-fit:contain">
+<p style="font-size:26px;color:#46506A">넓이로 보면: 삼각형 ½ × 3 × 3k = 1</p>
+<h3 style="font-size:34px;font-weight:700;color:#2563EB">⑵ P(2 ≤ X ≤ 3)</h3>
+<img src="../assets/media/w01_f_ex_p.png" alt="P(2 ≤ X ≤ 3) = 2부터 3까지 (2/9)x의 정적분 = (1/9)[x²] = 5/9" style="width:740px;height:142px;object-fit:contain">
+<p style="font-size:26px;color:#46506A">넓이로 보면: 사다리꼴 ½ × (4/9 + 6/9) × 1</p>
+</div>
+<img src="../assets/media/w01_pdf_kx.png" alt="y = (2/9)x 그래프, 2부터 3까지 주황색으로 칠한 넓이 5/9" style="width:640px;height:441px;object-fit:contain;background:#FFFFFF;border-radius:16px">
+</div>
+<aside>넓이로 풀어도 되고(삼각형, 사다리꼴) 정적분으로 풀어도 됨. 두 방법 모두 보여주기.</aside>
+</section>
+
+<section id="practice" data-transition="fade" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#2563EB">연습 문제</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">직접 풀어 보기</h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:24px;width:1180px">
+<div style="display:flex;flex-direction:column;gap:8px;background:#FFFFFF;border:1px solid #E3E7EE;border-radius:16px;padding:28px 32px">
+<h3 style="font-size:32px;font-weight:700">1. f(x) = ¼x + k  (0 ≤ x ≤ 2)   · 교과서 84쪽 문제 4</h3>
+<p style="font-size:28px;color:#46506A">⑴ 상수 k의 값    ⑵ P(1 &lt; X ≤ 2)</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FFFFFF;border:1px solid #E3E7EE;border-radius:16px;padding:28px 32px">
+<h3 style="font-size:32px;font-weight:700">2. 계산 대기 시간 f(x) = x(12 − x)/288  (0 ≤ x ≤ 12)</h3>
+<p style="font-size:28px;color:#46506A">6분 이상 기다릴 확률 (힌트: 그래프의 대칭)</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FFFFFF;border:1px solid #E3E7EE;border-radius:16px;padding:28px 32px">
+<h3 style="font-size:32px;font-weight:700">3. 하루 불량품 개수 X의 확률분포</h3>
+<p style="font-size:28px;color:#46506A">P(X=0) = 0.5, P(X=1) = 0.3, P(X=2) = a, P(X=3) = 0.05<br>⑴ a의 값    ⑵ 불량품이 1개 이상일 확률</p>
+</div>
+</div>
+<p class="frag" data-order="1" style="position:absolute;left:1372px;top:300px;width:420px;font-size:30px;font-weight:700;color:#9A3412;background:#FFF1E6;border:2px solid #C2410C;border-radius:12px;padding:20px 24px">⑴ k = 1/4  ⑵ 5/8</p>
+<p class="frag" data-order="2" style="position:absolute;left:1372px;top:500px;width:420px;font-size:30px;font-weight:700;color:#9A3412;background:#FFF1E6;border:2px solid #C2410C;border-radius:12px;padding:20px 24px">1/2 (x = 6 대칭)</p>
+<p class="frag" data-order="3" style="position:absolute;left:1372px;top:700px;width:420px;font-size:30px;font-weight:700;color:#9A3412;background:#FFF1E6;border:2px solid #C2410C;border-radius:12px;padding:20px 24px">⑴ a = 0.15  ⑵ 0.5</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6B7280">발표 모드에서 클릭할 때마다 정답 표시</p>
+<aside>풀이: 1 ⑴ ∫₀² (¼x + k) dx = ½ + 2k = 1 → k = 1/4 ⑵ ∫₁² (¼x + ¼) dx = 3/8 + 1/4 = 5/8. 2 그래프가 x = 6에 대하여 대칭 → 1/2. 3 ⑴ 0.5 + 0.3 + a + 0.05 = 1 → a = 0.15 ⑵ 1 − P(X=0) = 0.5 (이산이므로 합으로 계산).</aside>
+</section>
+
+<section id="summary" data-transition="fade" style="background:#EEF3FB;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#2563EB">정리</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">오늘의 정리</h2>
+</div>
+<table style="font-size:32px;color:#172033">
+<tr><th style="width:26%">개념</th><th style="width:44%">뜻</th><th style="width:30%">비유</th></tr>
+<tr><td><b>확률변수</b></td><td>표본공간 → 실수 함수</td><td>슬롯머신</td></tr>
+<tr><td><b>이산확률변수</b></td><td>셀 수 있는 값</td><td>플립북 낱장</td></tr>
+<tr><td><b>연속확률변수</b></td><td>구간의 모든 실수</td><td>플립북 움직임</td></tr>
+<tr><td><b>확률질량함수</b></td><td>P(X = xᵢ) = pᵢ, 합 = 1</td><td>확률을 컵에 나눠 담기</td></tr>
+<tr><td><b>확률밀도함수</b></td><td>넓이 = 확률, 전체 넓이 = 1</td><td>회전 원판</td></tr>
+</table>
+<aside>학습 목표 네 가지와 연결해 확인. 비유 열을 가리고 학생에게 각 개념의 비유를 말해 보게 함.</aside>
+</section>
+
+<section id="next" data-transition="fade" style="background:#172033;color:#F4F6FA;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:row;gap:72px;align-items:center">
+<img src="../assets/media/seesaw.jpg" alt="놀이터의 시소" style="width:760px;height:570px;object-fit:cover;border-radius:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:24px;font-weight:700;color:#93B4F5">다음 주 예고 · 교과서 86~91쪽</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15;color:#F4F6FA">기댓값 =<br>시소의 균형점</h2>
+<p style="font-size:30px;line-height:1.5;color:#BFC8D8">할인권: 5000원 70장 · 10000원 20장 · 20000원 10장</p>
+<p style="font-size:30px;line-height:1.5;color:#BFC8D8">확률 = 무게 → 시소가 수평인 받침점 위치는?</p>
+<p style="font-size:30px;font-weight:700;color:#F4F6FA">예습: 교과서 86쪽 생각 열기</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#BFC8D8">사진: RogerWiki, Stand-up seesaw playground, CC0, Wikimedia Commons</p>
+<aside>놀이공원 할인권 문제(교과서 86쪽 생각 열기)를 미리 읽어 오기.</aside>
+</section>
+
+<section id="credits" data-transition="fade" style="background:#FAFAF7;color:#172033;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:36px">
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">그림 출처</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 64px">
+<p style="font-size:24px;line-height:1.5">표지·원판: Douglas Perkins, Basic roulette wheel, CC0</p>
+<p style="font-size:24px;line-height:1.5">슬롯머신: gnokii, Slot machine, CC0</p>
+<p style="font-size:24px;line-height:1.5">생산라인: Yinan Chen, 퍼블릭 도메인</p>
+<p style="font-size:24px;line-height:1.5">저항: Evan-Amos, 퍼블릭 도메인 · 전구: 퍼블릭 도메인</p>
+<p style="font-size:24px;line-height:1.5">플립북: John Barnes Linnet, The Kineograph (1886), 퍼블릭 도메인</p>
+<p style="font-size:24px;line-height:1.5">볼링 애니메이션: Groink, 10-pin bowling strike, CC0</p>
+<p style="font-size:24px;line-height:1.5">버스 정류장: 玄史生, CC0</p>
+<p style="font-size:24px;line-height:1.5">머그컵 품질검사: Encik Tekateki, Quality Control of Ceramic Mugs, CC BY-SA 4.0</p>
+<p style="font-size:24px;line-height:1.5">시소: RogerWiki, Stand-up seesaw playground, CC0</p>
+<p style="font-size:24px;line-height:1.5">인트로 영상: Google Flow (Veo 3.1 Lite)로 생성</p>
+<p style="font-size:24px;line-height:1.5">그래프·애니메이션·시뮬레이션: 직접 제작</p>
+<p style="font-size:24px;line-height:1.5">사진 출처: Wikimedia Commons (commons.wikimedia.org)</p>
+</div>
+<aside>CC BY-SA 그림은 수정 없이 사용함.</aside>
+</section>
+
+</div></div>
+<div id="bar"><div id="progress"></div></div>
+<div id="hud"><a href="../index.html">← 목록</a><span id="count"></span>
+<span class="keys">← → 이동 · F 전체 화면 · N 메모</span></div>
+<div id="notes" hidden></div>
+<script src="../assets/deck.js"></script>
+</body></html>

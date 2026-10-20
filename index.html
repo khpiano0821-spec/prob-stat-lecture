@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>확률과 통계 강의</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+.week { display: flex; gap: 18px; align-items: flex-start; }
+.week .num { flex: none; width: 56px; height: 56px; border-radius: 14px; background: var(--blue-bg); color: var(--blue); font-weight: 700; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+.week h3 { margin: 0 0 2px; font-size: 19px; }
+.week p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+.soon { opacity: .55; }
+.play { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-top: 10px; }
+.play a { display: block; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; text-decoration: none; color: var(--ink); background: var(--bg); }
+.play a:hover { border-color: var(--blue); }
+.play b { display: block; }
+.play span { font-size: 14px; color: var(--muted); }
+</style>
+</head><body><div class="wrap">
+<p class="eyebrow">공과대학 1학년</p>
+<h1>확률과 통계</h1>
+<p class="lead">주차별 슬라이드 · 확인 퀴즈 · 값을 바꿔 보는 플레이그라운드</p>
+
+<h2>주차별 자료</h2>
+<div class="card week">
+<div class="num">1주</div>
+<div><h3>확률변수와 확률분포</h3><p>교과서 Ⅲ-1 (79~85쪽) · 확률변수, 이산과 연속, 확률질량함수, 확률밀도함수</p>
+<div class="row"><a class="btn primary" href="w01/slides.html">슬라이드</a><a class="btn" href="w01/quiz.html">확인 퀴즈</a><a class="btn" href="playground/index.html#area">넓이 = 확률 실습</a></div></div>
+</div>
+<div class="card week soon">
+<div class="num">2주</div>
+<div><h3>이산확률변수의 기댓값과 표준편차</h3><p>교과서 86~91쪽 · 준비 중</p></div>
+</div>
+
+<h2>플레이그라운드</h2>
+<div class="card">
+<p class="muted" style="margin:0">슬라이더로 값을 바꾸며 분포가 변하는 모습 관찰</p>
+<div class="play">
+<a href="playground/index.html#binom"><b>이항분포 B(n, p)</b><span>n이 커지면 종 모양</span></a>
+<a href="playground/index.html#normal"><b>정규분포와 넓이</b><span>m, σ, 표준화</span></a>
+<a href="playground/index.html#galton"><b>골턴 보드</b><span>공이 만드는 분포</span></a>
+<a href="playground/index.html#lln"><b>큰수의 법칙</b><span>상대도수의 수렴</span></a>
+<a href="playground/index.html#area"><b>넓이 = 확률</b><span>막대에서 곡선으로</span></a>
+</div>
+</div>
+
+<h2>발표 방법</h2>
+<div class="card">
+<p style="margin:0">슬라이드: → 또는 클릭으로 다음 · ← 이전 · F 전체 화면 · N 발표자 메모 · 문제 장은 클릭할 때마다 정답 공개</p>
+</div>
+
+<footer>그림 출처는 각 슬라이드와 마지막 장에 표기 · 사진: Wikimedia Commons (퍼블릭 도메인, CC0, CC BY-SA) · 인트로 영상: Google Flow (Veo 3.1 Lite)로 생성 · 그래프와 시뮬레이션: 직접 제작</footer>
+</div></body></html>
