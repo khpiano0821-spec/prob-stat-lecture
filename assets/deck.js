@@ -74,6 +74,10 @@
     tx = null;
   });
 
+  window.addEventListener('hashchange', function () {
+    var n = parseInt(location.hash.slice(1), 10);
+    if (!isNaN(n) && n - 1 !== cur) go(n - 1);
+  });
   window.addEventListener('resize', fit);
   fit();
   var start = parseInt(location.hash.slice(1), 10);
